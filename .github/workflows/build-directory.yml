@@ -1,0 +1,28 @@
+name: Build Directory
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'profiles/*.json'
+      - 'scripts/build-directory.mjs'
+permissions:
+  contents: write
+jobs:
+  build-directory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build directory
+        run: |
+          node scripts/build-directory.mjs
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add directory/
+          git commit -m "Update directory" || echo "No changes to commit"
+          git push
