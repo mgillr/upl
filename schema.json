@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UPL Profile",
+  "type": "object",
+  "required": ["name", "rails"],
+  "additionalProperties": true,
+  "properties": {
+    "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "avatar": { "type": "string", "format": "uri", "maxLength": 300 },
+    "currency": { "type": "string", "minLength": 3, "maxLength": 6 },
+    "category": { "type": "string", "maxLength": 50 },
+    "city": { "type": "string", "maxLength": 60 },
+
+    "ch_street":   { "type": "string", "maxLength": 70 },
+    "ch_house_no": { "type": "string", "maxLength": 16 },
+    "ch_postal":   { "type": "string", "maxLength": 16 },
+    "ch_city":     { "type": "string", "maxLength": 35 },
+    "ch_country":  { "type": "string", "maxLength": 2 },
+
+    "pix_name": { "type": "string", "maxLength": 25 },
+    "pix_city": { "type": "string", "maxLength": 15 },
+
+    "rails": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lightning_address": { "type": "string", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
+        "lnurlp_url":        { "type": "string", "format": "uri" },
+        "bitcoin_address":   { "type": "string", "pattern": "^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$" },
+        "solana_address":    { "type": "string", "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$" },
+        "solana_usdc_mint":  { "type": "string", "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$" },
+        "ethereum_address":  { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+        "usdt_evm":          { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+        "upi":               { "type": "string", "pattern": "^[a-zA-Z0-9_.-]{2,50}@[a-zA-Z]{2,50}$" },
+        "iban":              { "type": "string", "pattern": "^[A-Z]{2}\\d{2}[A-Z0-9]{10,30}$" },
+        "pix_key":           { "type": "string", "minLength": 3, "maxLength": 200 },
+
+        "paypal_me":         { "type": "string", "pattern": "^[A-Za-z0-9_.-]{2,64}$" },
+        "revolut_me":        { "type": "string", "pattern": "^[A-Za-z0-9_.-]{2,64}$" },
+        "cash_app":          { "type": "string", "pattern": "^[A-Za-z0-9_]{1,20}$" },
+        "venmo":             { "type": "string", "pattern": "^[A-Za-z0-9_-]{5,30}$" },
+
+        "zelle":             { "type": "string", "minLength": 3, "maxLength": 200 },
+        "interac_email":     { "type": "string", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
+        "payid_au":          { "type": "string", "minLength": 3, "maxLength": 200 },
+        "fps_id":            { "type": "string", "minLength": 3, "maxLength": 200 }
+      }
+    }
+  }
+}
