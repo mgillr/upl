@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UPL – Make a Profile</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0b0c10;color:#e8e8e8;margin:0}
+  .wrap{max-width:920px;margin:0 auto;padding:20px}
+  h1{font-size:20px;margin:10px 0}
+  .card{background:#111418;border:1px solid #23272f;border-radius:12px;padding:16px;margin:12px 0}
+  label{display:block;margin:10px 0 6px}
+  input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid #2b313b;background:#0f131a;color:#e8e8e8}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{background:#151922;border:1px solid #2b313b;color:#e8e8e8;padding:12px 16px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-block}
+  code{background:#0f1218;border:1px solid #222;border-radius:6px;padding:2px 6px}
+  .muted{opacity:.75}
+  .error{color:#ff7b7b;font-size:13px}
+  .col{flex:1;min-width:280px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Create your UPL profile</h1>
+
+  <div class="card">
+    <div class="muted">Fill only the rails you use. UPL is non‑custodial; it only routes to your rails.</div>
+  </div>
+
+  <div class="card row">
+    <div class="col">
+      <label>Name</label><input id="name" placeholder="e.g., Ryan">
+      <label>Avatar URL (optional)</label><input id="avatar" placeholder="https://...">
+      <label>Preferred currency (hint, e.g., CHF/EUR/USD/INR/BRL)</label><input id="currency" placeholder="CHF">
+      <label>Category (optional)</label><input id="category" placeholder="barber, musician, cafe, coach">
+      <label>City (optional)</label><input id="city" placeholder="Zurich">
+    </div>
+    <div class="col">
+      <label>Lightning Address</label><input id="lightning_address" placeholder="user@domain.tld">
+      <label>LNURL‑Pay URL</label><input id="lnurlp_url" placeholder="https://domain/.well-known/lnurlp/user">
+      <label>Bitcoin Address</label><input id="bitcoin_address" placeholder="bc1...">
+      <label>Solana Address</label><input id="solana_address" placeholder="base58 address">
+      <label>Solana USDC Mint (default: EPjF...)</label><input id="solana_usdc_mint" placeholder="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v">
+      <label>Ethereum Address</label><input id="ethereum_address" placeholder="0x...40 hex chars">
+      <label>USDT (EVM) Address</label><input id="usdt_evm" placeholder="0x...">
+    </div>
+    <div class="col">
+      <label>UPI</label><input id="upi" placeholder="name@bank">
+      <label>IBAN</label><input id="iban" placeholder="CH9300762011623852957">
+      <label>Pix key</label><input id="pix_key" placeholder="email/phone/CPF/EVP">
+      <label>Pix name (25 chars)</label><input id="pix_name" placeholder="Payee name">
+      <label>Pix city (15 chars, caps)</label><input id="pix_city" placeholder="SAO PAULO">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px">Swiss QR‑bill (optional; only if your IBAN is CH or LI)</div>
+    <div class="row">
+      <div class="col">
+        <label>Street</label><input id="ch_street" placeholder="Bahnhofstrasse">
+      </div>
+      <div class="col" style="max-width:200px">
+        <label>House No.</label><input id="ch_house_no" placeholder="10">
+      </div>
+      <div class="col" style="max-width:220px">
+        <label>Postal code</label><input id="ch_postal" placeholder="8001">
+      </div>
+      <div class="col">
+        <label>Town/City</label><input id="ch_city" placeholder="Zürich">
+      </div>
+      <div class="col" style="max-width:200px">
+        <label>Country (ISO‑2)</label><input id="ch_country" placeholder="CH" value="CH">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px">Extra rails (optional)</div>
+    <div class="row">
+      <div class="col"><label>PayPal.Me handle</label><input id="paypal_me" placeholder="your-handle"></div>
+      <div class="col"><label>Revolut.me handle</label><input id="revolut_me" placeholder="your-handle"></div>
+      <div class="col"><label>Cash App $cashtag (no $)</label><input id="cash_app" placeholder="yourtag"></div>
+      <div class="col"><label>Venmo username</label><input id="venmo" placeholder="yourname"></div>
+      <div class="col"><label>Zelle (email/phone)</label><input id="zelle" placeholder="name@example.com"></div>
+      <div class="col"><label>Interac e‑Transfer email</label><input id="interac_email" placeholder="name@example.com"></div>
+      <div class="col"><label>PayID (AU)</label><input id="payid_au" placeholder="email/phone/ABN"></div>
+      <div class="col"><label>FPS ID (HK)</label><input id="fps_id" placeholder="FPS proxy or ID"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button class="btn" id="download">Download JSON</button>
+      <a class="btn" id="preview" target="_blank" rel="noopener">Preview Pay Page</a>
+      <a class="btn" id="issue" target="_blank" rel="noopener">Open GitHub Issue</a>
+    </div>
+    <div class="muted" style="margin-top:8px">
+      Save as <code>/profiles/YOURNAME.json</code> in the repo or submit via the pre‑filled GitHub Issue.
+    </div>
+    <div class="error" id="err"></div>
+  </div>
+
+  <div class="card">
+    <label>Raw JSON (read‑only)</label>
+    <textarea id="raw" readonly style="height:260px"></textarea>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const fields = [
+    "name","avatar","currency","category","city",
+    "lightning_address","lnurlp_url","bitcoin_address","solana_address","solana_usdc_mint","ethereum_address","usdt_evm",
+    "upi","iban","pix_key","pix_name","pix_city",
+    "ch_street","ch_house_no","ch_postal","ch_city","ch_country",
+    "paypal_me","revolut_me","cash_app","venmo","zelle","interac_email","payid_au","fps_id"
+  ];
+
+  const patterns = {
+    lightning_address: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
+    lnurlp_url: /^https?:\/\/.+/i,
+    bitcoin_address: /^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$/,
+    solana_address: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+    solana_usdc_mint: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+    ethereum_address: /^0x[a-fA-F0-9]{40}$/,
+    usdt_evm: /^0x[a-fA-F0-9]{40}$/,
+    upi: /^[a-zA-Z0-9_.-]{2,50}@[a-zA-Z]{2,50}$/,
+    iban: /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/,
+    interac_email: /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+  };
+
+  function buildProfile(){
+    const name = $('name').value.trim();
+    if(!name) throw new Error('Name is required.');
+    const p = {
+      name,
+      currency: $('currency').value.trim() || undefined,
+      avatar: $('avatar').value.trim() || undefined,
+      category: $('category').value.trim() || undefined,
+      city: $('city').value.trim() || undefined,
+      // Swiss QR address fields (top-level for simplicity)
+      ch_street: $('ch_street').value.trim() || undefined,
+      ch_house_no: $('ch_house_no').value.trim() || undefined,
+      ch_postal: $('ch_postal').value.trim() || undefined,
+      ch_city: $('ch_city').value.trim() || undefined,
+      ch_country: $('ch_country').value.trim() || undefined,
+      rails: {}
+    };
+    const r = p.rails;
+    function set(k){ const v = $(k).value.trim(); if(v) r[k]=v; }
+    ["lightning_address","lnurlp_url","bitcoin_address","solana_address","solana_usdc_mint","ethereum_address","usdt_evm","upi","iban","pix_key",
+     "paypal_me","revolut_me","cash_app","venmo","zelle","interac_email","payid_au","fps_id"].forEach(set);
+    if (Object.keys(r).length===0) throw new Error('Add at least one rail.');
+
+    // Validate formats
+    for (const [k,v] of Object.entries(r)){
+      if (patterns[k] && !patterns[k].test(v)) throw new Error(`Invalid ${k}.`);
+    }
+    // Pix extras
+    if (r.pix_key){
+      p.pix_name = ($('pix_name').value.trim() || name).substring(0,25);
+      p.pix_city = ($('pix_city').value.trim() || 'SAO PAULO').toUpperCase().substring(0,15);
+    }
+
+    // Clean empty top-level
+    ["currency","avatar","category","city","ch_street","ch_house_no","ch_postal","ch_city","ch_country","pix_name","pix_city"]
+      .forEach(k => { if (p[k] === undefined || p[k] === '') delete p[k]; });
+    return p;
+  }
+
+  function updateRaw(){
+    try{
+      const p = buildProfile();
+      $('raw').value = JSON.stringify(p,null,2);
+      $('err').textContent = '';
+      $('preview').href = 'index.html?u=' + (p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'YOURNAME');
+    }catch(e){ $('err').textContent = e.message; }
+  }
+  fields.forEach(id=>$(id).addEventListener('input', updateRaw));
+  updateRaw();
+
+  $('download').onclick = () => {
+    try{
+      const p = buildProfile();
+      const blob = new Blob([JSON.stringify(p,null,2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const safe = p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'user';
+      a.download = `${safe}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }catch(e){ $('err').textContent = e.message; }
+  };
+
+  $('issue').onclick = (e) => {
+    try{
+      const p = buildProfile();
+      const user = p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'user';
+      const title = encodeURIComponent(`Add profile: ${user}`);
+      const body = encodeURIComponent([
+        "Please add my profile at `/profiles/"+user+".json`",
+        "",
+        "```json",
+        JSON.stringify(p,null,2),
+        "```"
+      ].join("\n"));
+      // Repository URL
+      const url = `https://github.com/mgillr/upl/issues/new?title=${title}&body=${body}`;
+      $('issue').href = url;
+    }catch(err){
+      e.preventDefault();
+      $('err').textContent = err.message;
+    }
+  };
+})();
+</script>
+</body>
+</html>
