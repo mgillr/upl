@@ -1,0 +1,19 @@
+name: Validate Profiles
+on:
+  pull_request:
+    paths:
+      - 'profiles/*.json'
+      - 'schema.json'
+permissions:
+  contents: read
+jobs:
+  ajv-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate JSON files against schema
+        run: |
+          npx --yes ajv-cli@5 validate -s schema.json -d 'profiles/*.json' --spec=draft7
