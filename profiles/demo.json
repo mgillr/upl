@@ -1,0 +1,31 @@
+{
+  "name": "Demo User",
+  "avatar": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+  "city": "Zurich",
+  "category": "Demo",
+  "currency": "CHF",
+  "ch_street": "Bahnhofstrasse",
+  "ch_house_no": "1",
+  "ch_postal": "8001",
+  "ch_city": "Zurich",
+  "ch_country": "CH",
+  "rails": {
+    "iban": "CH5604835012345678009",
+    "upi": "example@upi",
+    "pix_key": "example@pix.com",
+    "pix_name": "Demo User",
+    "pix_city": "SAO PAULO",
+    "lightning_address": "demo@ln.tips",
+    "bitcoin_address": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    "solana_address": "DemoSoLAddressPubkeyGoesHere111111111111",
+    "ethereum_address": "0x0000000000000000000000000000000000000000",
+    "paypal_me": "demouser",
+    "revolut_me": "demouser",
+    "cash_app": "demouser",
+    "venmo": "demouser",
+    "zelle": "demo@example.com",
+    "interac_email": "demo@example.com",
+    "payid_au": "demo@payid",
+    "fps_id": "12345678"
+  }
+}
