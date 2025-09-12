@@ -465,12 +465,18 @@
   }
 
   function railItem(kind, label, sub, icon){
+    console.log(`Creating rail item: ${kind}, ${label}, ${sub}, ${icon}`);
     const div = document.createElement('div');
     div.className='rail';
     div.setAttribute('role', 'button');
     div.setAttribute('tabindex', '0');
     div.setAttribute('aria-label', `Pay with ${label}${sub ? ': ' + sub : ''}`);
-    div.innerHTML = `${svg(icon)} <div><div>${label}</div><small>${sub||''}</small></div>`;
+    
+    // Get the SVG icon
+    const svgIcon = svg(icon);
+    console.log(`SVG icon for ${icon}:`, svgIcon);
+    
+    div.innerHTML = `${svgIcon} <div><div>${label}</div><small>${sub||''}</small></div>`;
     div.onclick = ()=> openRail(kind);
     div.onkeydown = (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -663,6 +669,10 @@
       return railItem(kind,label,sub,icon);
     }
 
+    // Debug info
+    console.log("Building rails with profile:", p);
+    console.log("Rails data:", r);
+
     // Group 1: Bank rails
     const bankRails = document.createElement('div');
     bankRails.className = 'rail-section';
@@ -679,6 +689,8 @@
       push('UPI','UPI', r.upi||'', 'upi', !!r.upi),
       push('PIX','Pix', p.pix_name? (p.pix_name + (p.pix_city?' · '+p.pix_city:'')) : '', 'pix', !!r.pix_key)
     ].filter(Boolean);
+    
+    console.log("Bank items:", bankItems);
     
     if (bankItems.length > 0) {
       bankItems.forEach(item => bankGrid.appendChild(item));
@@ -701,6 +713,8 @@
       push('BTC','Bitcoin', r.bitcoin_address||'', 'btc', !!r.bitcoin_address),
       push('Solana','Solana', r.solana_usdc_mint? 'Solana Pay (USDC)' : (r.solana_address? 'Solana (SOL)':''), 'sol', !!r.solana_address)
     ].filter(Boolean);
+    
+    console.log("Crypto items:", cryptoItems);
     
     if (cryptoItems.length > 0) {
       cryptoItems.forEach(item => cryptoGrid.appendChild(item));
@@ -728,6 +742,8 @@
       push('PayID','PayID (AU)', r.payid_au||'', 'pay', !!r.payid_au),
       push('FPS','FPS (HK)', r.fps_id||'', 'pay', !!r.fps_id)
     ].filter(Boolean);
+    
+    console.log("Wallet items:", walletItems);
     
     if (walletItems.length > 0) {
       walletItems.forEach(item => walletGrid.appendChild(item));
@@ -782,21 +798,33 @@
 
     // fetch profile
     const profileUrl = `${location.origin}${location.pathname.replace(/index\.html?$/,'')}profiles/${encodeURIComponent(S.qs.get('u'))}.json`;
-    fetch(profileUrl).then(r => r.ok ? r.json() : Promise.reject(new Error('profile not found'))).then(p => {
-      S.profile = p;
-      $('title').textContent = (p.name? `${p.name} — Pay` : 'Pay');
-      $('subtitle').textContent = 'One QR, any money.';
-      if (p.avatar) { $('avatar').src = p.avatar; } else { $('avatar').style.display='none'; }
-      const tags = []; if (p.city) tags.push(`<span class="tag">${p.city}</span>`); if (p.category) tags.push(`<span class="tag">${p.category}</span>`);
-      $('meta').innerHTML = tags.join(' ');
-      buildRails();
-      setUniversalQr();
-    }).catch(err=>{
-      console.error(err);
-      $('title').textContent='UPL'; $('subtitle').textContent='One QR, any money.';
-      $('rails').innerHTML = '<div class="muted">No profile found. <a href="make.html">Create your profile</a>.</div>';
-      setUniversalQr();
-    });
+    console.log("Fetching profile from:", profileUrl);
+    
+    fetch(profileUrl)
+      .then(r => {
+        if (!r.ok) {
+          console.error("Profile fetch failed:", r.status, r.statusText);
+          return Promise.reject(new Error('profile not found'));
+        }
+        return r.json();
+      })
+      .then(p => {
+        console.log("Profile loaded successfully:", p);
+        S.profile = p;
+        $('title').textContent = (p.name? `${p.name} — Pay` : 'Pay');
+        $('subtitle').textContent = 'One QR, any money.';
+        if (p.avatar) { $('avatar').src = p.avatar; } else { $('avatar').style.display='none'; }
+        const tags = []; if (p.city) tags.push(`<span class="tag">${p.city}</span>`); if (p.category) tags.push(`<span class="tag">${p.category}</span>`);
+        $('meta').innerHTML = tags.join(' ');
+        buildRails();
+        setUniversalQr();
+      })
+      .catch(err => {
+        console.error("Profile loading error:", err);
+        $('title').textContent='UPL'; $('subtitle').textContent='One QR, any money.';
+        $('rails').innerHTML = '<div class="muted">No profile found. <a href="make.html">Create your profile</a>.</div>';
+        setUniversalQr();
+      });
   })();
 
   function onInputsChanged(){ setUniversalQr(); }
