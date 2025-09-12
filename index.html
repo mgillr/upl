@@ -182,15 +182,42 @@
   footer{opacity:.7; font-size:12px; margin:28px 0; text-align:center}
 
   /* Modal sheet */
-  .sheet{position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.45); z-index:50}
-  .sheet.on{display:flex}
-  .sheet .panel{background:linear-gradient(180deg,var(--surface),var(--surface2)); border:1px solid var(--border); border-radius:18px 18px 0 0; padding:18px; width:min(720px,100%); max-height:85vh; overflow:auto}
-  .sheet .head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
-  .sheet .title{font-weight:600}
-  .sheet .grid2{display:grid; grid-template-columns:1fr 220px; gap:16px}
+  .sheet{
+    position:fixed; 
+    inset:0; 
+    display:none; 
+    align-items:flex-end; 
+    justify-content:center; 
+    background:rgba(0,0,0,.65); 
+    z-index:50;
+    backdrop-filter: blur(3px);
+  }
+  .sheet.on{display:flex !important}
+  .sheet .panel{
+    background:linear-gradient(180deg,var(--surface),var(--surface2)); 
+    border:1px solid var(--border); 
+    border-radius:18px 18px 0 0; 
+    padding:18px; 
+    width:min(720px,100%); 
+    max-height:85vh; 
+    overflow:auto;
+    box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+  }
+  .sheet .head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px}
+  .sheet .title{font-weight:600; font-size: 18px;}
+  .sheet .grid2{display:grid; grid-template-columns:1fr 220px; gap:20px}
   @media (max-width:760px){ .sheet .grid2{grid-template-columns:1fr} }
-  .qrbox{display:flex; flex-direction:column; align-items:center; gap:8px}
-  .qrbox .qr{background:#fff; border-radius:12px; width:220px; height:220px}
+  .qrbox{display:flex; flex-direction:column; align-items:center; gap:12px}
+  .qrbox .qr{
+    background:#fff; 
+    border-radius:12px; 
+    width:220px; 
+    height:220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
   .note{font-size:12px; color:var(--muted)}
   
   /* Screen reader only class */
@@ -370,6 +397,11 @@
   // Inputs
   const amountEl = $('amount'), noteEl = $('note'), fiatEl = $('fiat');
   const chipsEl = $('chips');
+  
+  // Sheet elements
+  const SHEET = $('sheet');
+  const SHEET_TITLE = $('sheetTitle');
+  const SHEET_BODY = $('sheetBody');
 
   // Create utility: update URL (not reload) and re-render QR
   function currentUrl(){
@@ -386,8 +418,9 @@
   }
 
   // Simple QR code generation using qrcode.js library
-  function generateQR(elementId, text) {
+  window.generateQR = function(elementId, text) {
     try {
+      console.log(`Generating QR code for element ${elementId} with text: ${text}`);
       const element = document.getElementById(elementId);
       if (!element) {
         console.error('Element not found:', elementId);
@@ -409,10 +442,10 @@
         if (error) {
           console.error('QR generation error:', error);
           element.innerHTML = '<div style="padding:10px;background:#fff;color:#000;text-align:center;">QR Error</div>';
+        } else {
+          console.log('QR code successfully generated for', elementId);
         }
       });
-      
-      console.log('QR code generated for', elementId);
     } catch (e) {
       console.error('QR generation error:', e);
       const element = document.getElementById(elementId);
@@ -705,10 +738,19 @@
 
     // QR payload (only when we have one)
     if (qrPayload) {
+      console.log("Creating QR code with payload:", qrPayload);
+      
       // Create a unique ID for this QR code
       const qrId = 'qr-' + Math.random().toString(36).substring(2, 15);
       c.id = qrId;
-      generateQR(qrId, qrPayload);
+      
+      // Add a placeholder while QR code is being generated
+      c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;">Generating QR...</div>';
+      
+      // Use setTimeout to ensure the DOM is updated before generating QR
+      setTimeout(() => {
+        window.generateQR(qrId, qrPayload);
+      }, 100);
       
       // Download QR code
       dl.onclick = () => {
