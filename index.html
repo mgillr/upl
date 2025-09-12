@@ -4,649 +4,489 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Universal Pay Link</title>
-<meta name="description" content="One QR, any money. Swiss QR-bill, SEPA, UPI, Pix, Lightning, BTC, Solana Pay, EVM, PayPal, Revolut, Cash App, Venmo.">
+<meta name="description" content="One QR, any money. Bank & instant rails, Swiss QR-bill, UPI, Pix, Lightning, BTC, Solana, PayPal/Revolut, and more.">
+
 <style>
-  :root {
-    --bg: #0b0c10;
-    --surface: #10141a;
-    --surface-2: #0f1318;
-    --border: #222a35;
-    --text: #e7e9ea;
-    --subtle: #9aa4b2;
-    --accent: #7dd3fc;
-    --accent-2: #22d3ee;
-    --radius: 16px;
-    --maxw: 960px;
+  :root{
+    --bg:#0b0c10; --surface:#10141a; --surface2:#0f1318;
+    --border:#222a35; --text:#e7e9ea; --muted:#9aa4b2;
+    --accent:#22d3ee; --accent2:#7dd3fc; --radius:16px; --maxw:980px;
   }
-  * { box-sizing: border-box }
-  html, body { height: 100% }
-  body {
-    margin: 0;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    background: radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,0.08), transparent 50%),
-                radial-gradient(1200px 600px at 100% 10%, rgba(125,211,252,0.08), transparent 40%),
-                var(--bg);
-    color: var(--text);
-    line-height: 1.45;
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,.08), transparent 50%),
+      radial-gradient(1200px 600px at 100% 10%, rgba(125,211,252,.08), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    line-height:1.45;
   }
-  a { color: #b7d3ff; text-decoration: none }
-  a:hover { text-decoration: underline }
+  a{color:#b7d3ff; text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:20px}
+  header{display:flex; align-items:center; gap:16px; margin:6px 0 16px}
+  header img{width:56px; height:56px; border-radius:50%; object-fit:cover; background:#1a1f28; border:1px solid var(--border)}
+  h1{font-size:22px; margin:0}
+  .muted{color:var(--muted)}
+  .tag{display:inline-block; border:1px solid var(--border); border-radius:999px; padding:4px 10px; font-size:12px; margin-right:8px; color:var(--muted)}
 
-  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 20px }
-  header { display:flex; align-items:center; gap:16px; margin: 8px 0 18px }
-  header img { width:56px; height:56px; border-radius:50%; background:#1a1f28; object-fit:cover; border:1px solid var(--border) }
-  h1 { font-size: 22px; margin: 0 }
-  .muted { color: var(--subtle) }
-  .tag { display:inline-block; border:1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size:12px; margin-right:8px; color: var(--subtle) }
+  .card{background:linear-gradient(180deg,var(--surface),var(--surface2)); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin:12px 0; box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .row{display:flex; gap:12px; flex-wrap:wrap}
+  .col{flex:1 1 360px}
 
-  .card {
-    background: linear-gradient(180deg, var(--surface), var(--surface-2));
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    margin: 12px 0;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-  }
+  .hero{display:grid; grid-template-columns: 220px 1fr; gap:18px; align-items:center}
+  @media (max-width:820px){ .hero{grid-template-columns:1fr} }
 
-  .qrbox { display:flex; gap:18px; align-items:center; flex-wrap:wrap }
-  canvas { background:#fff; border-radius: 10px }
-  code { background:#0f1218; border:1px solid #1b212a; border-radius:8px; padding:3px 6px; color:#d7dee7 }
+  canvas.qr{background:#fff; border-radius:12px; width:220px; height:220px}
 
-  .row { display:flex; gap:12px; flex-wrap:wrap }
-  .btn {
-    flex:1 1 260px;
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:14px 16px; border:1px solid var(--border); border-radius:12px;
-    background:#141a22; color:var(--text); text-decoration:none; cursor:pointer;
-    transition: transform .08s ease, border-color .2s ease;
-  }
-  .btn:hover { border-color:#2e3846; transform: translateY(-1px) }
-  .btn small { color: var(--subtle) }
-  .copy { cursor:pointer; border:1px dashed #394253; padding:6px 10px; border-radius:8px; font-size:12px }
-  .railTitle { font-weight:600; margin: 2px 0 8px }
-  .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:14px }
-  @media (max-width: 740px) { .grid2 { grid-template-columns: 1fr } }
+  .input{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px}
+  .txt{flex:1 1 160px; min-width:160px; padding:12px 14px; border:1px solid var(--border); border-radius:12px; background:#0f131a; color:var(--text)}
+  .chipbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+  .chip{padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:#141a22; cursor:pointer}
+  .chip:hover{border-color:#2e3846}
+  .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border:1px solid var(--border); border-radius:12px; background:#141a22; color:var(--text); text-decoration:none; cursor:pointer; transition:transform .08s ease, border-color .2s ease}
+  .btn:hover{transform:translateY(-1px); border-color:#2e3846}
+  .btn.primary{background:linear-gradient(180deg,#14232c,#111820); border-color:#294050}
+  .btn.small{padding:8px 10px; font-size:12px}
 
-  footer { opacity:.7; font-size:12px; margin:28px 0 }
-  .hidden{display:none}
-  textarea{width:100%;height:100px;background:#0f131a;color:#e8e8e8;border:1px solid #2b313b;border-radius:8px;padding:10px}
+  .railgrid{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
+  @media (max-width:820px){ .railgrid{grid-template-columns: repeat(2, 1fr)} }
+  .rail{display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-radius:12px; background:#141a22; padding:12px; cursor:pointer}
+  .rail:hover{border-color:#2e3846}
+  .rail svg{width:20px; height:20px}
+  .rail small{color:var(--muted)}
+
+  footer{opacity:.7; font-size:12px; margin:28px 0; text-align:center}
+
+  /* Modal sheet */
+  .sheet{position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.45); z-index:50}
+  .sheet.on{display:flex}
+  .sheet .panel{background:linear-gradient(180deg,var(--surface),var(--surface2)); border:1px solid var(--border); border-radius:18px 18px 0 0; padding:18px; width:min(720px,100%); max-height:85vh; overflow:auto}
+  .sheet .head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
+  .sheet .title{font-weight:600}
+  .sheet .grid2{display:grid; grid-template-columns:1fr 220px; gap:16px}
+  @media (max-width:760px){ .sheet .grid2{grid-template-columns:1fr} }
+  .qrbox{display:flex; flex-direction:column; align-items:center; gap:8px}
+  .qrbox canvas{background:#fff; border-radius:12px; width:220px; height:220px}
+  .note{font-size:12px; color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="wrap">
+
   <header>
-    <img src="" id="avatar" alt="">
+    <img id="avatar" alt="">
     <div>
       <h1 id="title">Universal Pay Link</h1>
       <div class="muted" id="subtitle">One QR, any money.</div>
-      <div id="meta" class="muted"></div>
+      <div id="meta"></div>
     </div>
   </header>
 
+  <!-- HERO: ONE universal QR -->
   <div class="card">
-    <div class="qrbox">
-      <canvas id="qr"></canvas>
-      <div>
-        <div class="muted">Scan to open this pay page</div>
-        <div><span id="pagelink"></span> <button id="copylink" class="copy">copy link</button> <button id="share" class="copy">share</button></div>
-        <div class="muted">Use <code>?amount=10&note=coffee&fiat=CHF</code> to suggest amounts/notes/currency.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="muted">Choose a rail</div>
-    <div class="row" id="rails"></div>
-  </div>
-
-  <!-- SEPA (IBAN) -->
-  <div class="card hidden" id="ibanBox">
-    <div class="railTitle">Bank transfer (IBAN / SEPA QR)</div>
-    <div class="muted" style="margin-bottom:6px">Many EU bank apps scan this and pre‑fill. If available, choose <strong>Instant</strong> in your bank app. Same QR works for Instant. </div>
-    <div class="grid2">
-      <div>
-        <div class="muted">IBAN</div>
-        <div style="margin-top:6px">
-          <code id="ibanCode"></code>
-          <button id="copyIban" class="copy">copy</button>
-        </div>
-        <div style="margin-top:8px">
-          <a id="paytoLink" class="btn" href="#" target="_blank" rel="noopener">Open via payto://</a>
+    <div class="hero">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px">
+        <canvas id="universalQr" class="qr" width="220" height="220"></canvas>
+        <div class="actions">
+          <button class="btn small" id="copylink">copy link</button>
+          <button class="btn small" id="share">share</button>
         </div>
       </div>
+
       <div>
-        <div class="muted">Scan with your banking app (EPC 069‑12)</div>
-        <canvas id="sepaQr" width="180" height="180" style="margin-top:6px"></canvas>
-        <div style="margin-top:8px"><button id="dlSepaQr" class="copy">download QR (PNG)</button></div>
+        <div class="muted">Set amount / note (optional). The QR updates live.</div>
+        <div class="input">
+          <input id="amount" class="txt" inputmode="decimal" placeholder="Amount (e.g., 35)">
+          <input id="note" class="txt" maxlength="80" placeholder="Note (e.g., haircut)">
+          <input id="fiat" class="txt" maxlength="4" placeholder="Currency (CHF, EUR, USD)">
+        </div>
+        <div class="chipbar" id="chips"></div>
+        <div class="actions" style="margin-top:14px">
+          <a id="primaryCta" class="btn primary" href="#" target="_blank" rel="noopener">Pay</a>
+          <a class="btn" href="#rails">More options ↓</a>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Swiss QR-bill -->
-  <div class="card hidden" id="chBox">
-    <div class="railTitle">Swiss QR‑bill (CHF/EUR)</div>
-    <div class="muted" style="margin-bottom:6px">
-      Works with Swiss e-/m‑banking. Uses Swiss Payments Code <code>SPC 0200</code>.
-    </div>
-    <div class="grid2">
-      <div>
-        <div class="muted">Creditor (must match account name)</div>
-        <div><code id="chCreditor"></code></div>
-        <div class="muted" style="margin-top:6px">IBAN</div>
-        <div><code id="chIban"></code></div>
-        <div class="muted" style="margin-top:6px">Currency</div>
-        <div><code id="chCcy"></code> <span class="muted">(set with <code>&fiat=CHF</code> or <code>EUR</code>)</span></div>
-      </div>
-      <div>
-        <div class="muted">Scan with your Swiss banking app (SPC)</div>
-        <canvas id="chQr" width="180" height="180" style="margin-top:6px"></canvas>
-        <div style="margin-top:8px"><button id="dlChQr" class="copy">download QR (PNG)</button></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Pix -->
-  <div class="card hidden" id="pixBox">
-    <div class="railTitle">Pix (Brasil)</div>
-    <div class="grid2">
-      <div>
-        <div class="muted">Copy‑and‑paste code</div>
-        <textarea id="pixCopy" readonly></textarea>
-        <div style="margin-top:8px"><button id="copyPix" class="copy">copy</button></div>
-      </div>
-      <div>
-        <div class="muted">Scan with your bank app (EMV BR Code)</div>
-        <canvas id="pixQr" width="180" height="180" style="margin-top:6px"></canvas>
-        <div style="margin-top:8px"><button id="dlPixQr" class="copy">download QR (PNG)</button></div>
-      </div>
-    </div>
+  <!-- RAILS -->
+  <div id="railsCard" class="card">
+    <div class="muted" style="margin-bottom:8px">Choose a rail</div>
+    <div id="rails" class="railgrid"></div>
   </div>
 
   <footer>
-    <div>
-      Open source. Non‑custodial routing. Host on GitHub Pages. — <a href="make.html">Make your UPL</a>
-    </div>
+    Open source. Non‑custodial routing. Host on GitHub Pages. — <a href="make.html">Make your UPL</a>
   </footer>
 </div>
 
+<!-- Modal sheet -->
+<div id="sheet" class="sheet" role="dialog" aria-modal="true">
+  <div class="panel">
+    <div class="head">
+      <div class="title" id="sheetTitle">Pay</div>
+      <button id="closeSheet" class="btn small">close</button>
+    </div>
+    <div id="sheetBody" class="grid2">
+      <!-- left: info + buttons; right: QR -->
+    </div>
+  </div>
+</div>
+
+<!-- QR library local, with CDN fallback -->
 <script src="./assets/qrcode.min.js"></script>
+<script>if(typeof QRCode==='undefined'){document.write('<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>')}</script>
+
 <script>
 (function(){
-  // -------- URL params --------
-  const qs = new URLSearchParams(location.search);
-  let username = qs.get('u');
-  if (!username) {
-    // Redirect to a default demo profile if none provided
+  // ---------- URL / state ----------
+  const $ = (id) => document.getElementById(id);
+  const S = { profile:null, rails:[], region:'', qs:new URLSearchParams(location.search) };
+
+  // Redirect to demo if no ?u
+  if (!S.qs.get('u')) {
+    const u = new URL(location.href);
+    u.searchParams.set('u','demo');
+    location.replace(u.toString());
+  }
+
+  // Inputs
+  const amountEl = $('amount'), noteEl = $('note'), fiatEl = $('fiat');
+  const chipsEl = $('chips');
+
+  // Create utility: update URL (not reload) and re-render QR
+  function currentUrl(){
     const url = new URL(location.href);
-    url.searchParams.set('u','demo');
-    location.replace(url.toString());
+    // keep ?u, update amount/note/fiat
+    const keep = new URLSearchParams();
+    keep.set('u', S.qs.get('u'));
+    const amt = amountEl.value.trim(); const n = noteEl.value.trim(); const f = fiatEl.value.trim().toUpperCase();
+    if (amt) keep.set('amount', amt);
+    if (n) keep.set('note', n);
+    if (f) keep.set('fiat', f);
+    url.search = keep.toString();
+    return url.toString();
   }
-  const amount   = qs.get('amount'); // number as string
-  const note     = qs.get('note') || '';
-  const fiat     = (qs.get('fiat') || '').toUpperCase(); // hint: CHF/EUR/...
 
-  // -------- Helpers --------
-  const $ = id => document.getElementById(id);
-  function copy(text){ navigator.clipboard.writeText(text).catch(()=>{}); }
-  
-  // Language support
-  const userLang = (navigator.language || 'en').substring(0, 2).toLowerCase();
-  const translations = {
-    en: {
-      oneQr: 'One QR, any money.',
-      bankRails: 'Bank rails',
-      crypto: 'Crypto',
-      walletLinks: 'Wallet links',
-      noProfile: 'No profile found',
-      appendUrl: 'Append <code>?u=USERNAME</code> to the URL, or create one now.',
-      createProfile: 'Create your profile',
-      noRails: 'No payment rails configured.',
-      profileNotFound: 'Profile not found',
-      linkCopied: 'Link copied'
-    },
-    de: {
-      oneQr: 'Ein QR, jedes Geld.',
-      bankRails: 'Bankverbindungen',
-      crypto: 'Krypto',
-      walletLinks: 'Wallet-Links',
-      noProfile: 'Kein Profil gefunden',
-      appendUrl: 'Fügen Sie <code>?u=BENUTZERNAME</code> zur URL hinzu oder erstellen Sie jetzt ein Profil.',
-      createProfile: 'Profil erstellen',
-      noRails: 'Keine Zahlungsschienen konfiguriert.',
-      profileNotFound: 'Profil nicht gefunden',
-      linkCopied: 'Link kopiert'
-    },
-    fr: {
-      oneQr: 'Un QR, tout argent.',
-      bankRails: 'Rails bancaires',
-      crypto: 'Crypto',
-      walletLinks: 'Liens de portefeuille',
-      noProfile: 'Aucun profil trouvé',
-      appendUrl: 'Ajoutez <code>?u=NOM</code> à l\'URL, ou créez-en un maintenant.',
-      createProfile: 'Créer votre profil',
-      noRails: 'Aucun rail de paiement configuré.',
-      profileNotFound: 'Profil non trouvé',
-      linkCopied: 'Lien copié'
-    },
-    it: {
-      oneQr: 'Un QR, qualsiasi denaro.',
-      bankRails: 'Binari bancari',
-      crypto: 'Crypto',
-      walletLinks: 'Link al portafoglio',
-      noProfile: 'Nessun profilo trovato',
-      appendUrl: 'Aggiungi <code>?u=NOME</code> all\'URL, o creane uno ora.',
-      createProfile: 'Crea il tuo profilo',
-      noRails: 'Nessun binario di pagamento configurato.',
-      profileNotFound: 'Profilo non trovato',
-      linkCopied: 'Link copiato'
-    },
-    es: {
-      oneQr: 'Un QR, cualquier dinero.',
-      bankRails: 'Rieles bancarios',
-      crypto: 'Cripto',
-      walletLinks: 'Enlaces de billetera',
-      noProfile: 'Perfil no encontrado',
-      appendUrl: 'Añade <code>?u=NOMBRE</code> a la URL, o crea uno ahora.',
-      createProfile: 'Crea tu perfil',
-      noRails: 'No hay rieles de pago configurados.',
-      profileNotFound: 'Perfil no encontrado',
-      linkCopied: 'Enlace copiado'
+  function safeQR(canvas, text){
+    try{
+      QRCode.toCanvas(canvas, text, { width: canvas.width||220, margin: 0, errorCorrectionLevel: 'M' }, (err)=>{
+        if (err) {
+          canvas.getContext('2d').fillStyle='#fff';
+          canvas.getContext('2d').fillRect(0,0,canvas.width,canvas.height);
+          console.error('QR error', err);
+        }
+      });
+    }catch(e){
+      console.error('QR draw fail', e);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle='#000'; ctx.fillText('QR error', 10, 20);
     }
-  };
-  
-  // Get translation based on user language, fallback to English
-  const t = key => (translations[userLang] && translations[userLang][key]) || translations.en[key];
-  
-  function setQR(canvasId, text, w=180){ 
-    // Clear any existing QR code
-    const canvas = $(canvasId);
-    while (canvas.firstChild) {
-      canvas.removeChild(canvas.firstChild);
-    }
-    // Create new QR code
-    new QRCode(canvas, {
-      text: text,
-      width: w,
-      height: w,
-      colorDark: "#000000",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.M
-    });
   }
+
+  function setUniversalQr(){ safeQR($('universalQr'), currentUrl()); }
+
+  // ---------- Rail builders ----------
   function cleanIban(s){ return String(s||'').replace(/\s+/g,'').toUpperCase(); }
-  function limit(s, n){ const t = String(s||''); return t.length>n ? t.slice(0,n) : t; }
+  function limit(s,n){ const t=String(s||''); return t.length>n ? t.slice(0,n) : t; }
 
-  // region hinting
-  const locale = (navigator.language || 'en').toLowerCase();
-  const region = (Intl.DateTimeFormat().resolvedOptions().locale || '').split('-')[1] || '';
-
-  // -------- EPC/SEPA QR (IBAN) --------
-  // EPC069-12 v3.x (SCT). Banks decide if SCT Inst is used; same payload. (EPC guideline)
-  function makeEpcSctQrPayload({ name, iban, amount, remittance, bic = '', version='002', charset='1' }){
-    const clean = cleanIban(iban);
-    if(!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(clean)) throw new Error('Invalid IBAN');
-    const payee = limit(name||'Payee',70);
-    const amt = amount ? `EUR${Number(amount).toFixed(2)}` : '';
-    const rem = limit(remittance || '',140);
-    const fields = ['BCD', version, charset, 'SCT', (bic||''), payee, clean, amt, '', '', rem];
-    return fields.join('\n');
+  // EPC SEPA
+  function makeEpcSctQr({ name, iban, amount, remittance, bic='', version='002', charset='1'}){
+    const ib = cleanIban(iban);
+    if(!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(ib)) throw new Error('Invalid IBAN');
+    const payee=limit(name||'Payee',70);
+    const amt=amount?`EUR${Number(amount).toFixed(2)}`:'';
+    const rem=limit(remittance||'',140);
+    return ['BCD',version,charset,'SCT',bic,payee,ib,amt,'','',rem].join('\n');
   }
-  function makePaytoUri({ iban, amount, remittance }){
-    const clean = cleanIban(iban);
-    const p = new URLSearchParams();
-    if(amount) p.set('amount', Number(amount).toFixed(2));
-    if(remittance) p.set('message', remittance);
-    return `payto://iban/${clean}${p.toString()? '?' + p.toString() : ''}`;
+  function makePayto({ iban, amount, remittance }){
+    const ib=cleanIban(iban); const q=new URLSearchParams();
+    if(amount) q.set('amount', Number(amount).toFixed(2));
+    if(remittance) q.set('message', remittance);
+    return `payto://iban/${ib}${q.toString()? '?'+q.toString():''}`;
   }
 
-  // -------- Swiss QR-bill (SPC 0200) --------
-  // Spec: Swiss Implementation Guidelines for the QR-bill v2.3. (lines separated by LF, all elements present; trailer 'EPD')
-  // Key groups: Header, Creditor (structured), Amount/Currency, Ultimate Debtor (empty lines if not provided), Reference, Message, Trailer.
-  function makeSwissQrPayload({
-    iban, creditorName, street, houseNo, postal, town, country='CH',
-    amount, currency='CHF', message='', referenceType='NON', reference='',
-    ud_name='', ud_street='', ud_houseNo='', ud_postal='', ud_town='', ud_country=''
-  }){
-    const IBAN = cleanIban(iban);
-    if(!/^(CH|LI)[0-9A-Z]{19}$/.test(IBAN)) throw new Error('Swiss QR requires CH or LI IBAN');
-
-    const lines = [];
-    lines.push('SPC');       // QRType
-    lines.push('0200');      // Version (v2.0+)
-    lines.push('1');         // Coding (UTF-8)
-    lines.push(IBAN);        // Creditor IBAN / QR-IBAN
-
-    // Creditor structured address (AdrTp 'S')
-    lines.push('S');                                   // AdrTp
-    lines.push(limit(creditorName||'Payee',70));       // Name
-    lines.push(limit(street||'',70));                  // Street
-    lines.push(limit(houseNo||'',16));                 // Building number
-    lines.push(limit(postal||'',16));                  // Postal code
-    lines.push(limit(town||'',35));                    // Town
-    lines.push((country||'CH').toUpperCase());         // Country (ISO 3166-1 alpha-2)
-
-    // Amount / Currency
-    lines.push(amount ? Number(amount).toFixed(2) : '');     // Amount (optional)
-    lines.push((currency==='EUR'||currency==='CHF') ? currency : 'CHF'); // Currency (CHF/EUR)
-
-    // Ultimate Debtor (7 lines; empty if not provided)
-    if (ud_name || ud_street || ud_postal || ud_town || ud_country || ud_houseNo){
-      lines.push('S');
-      lines.push(limit(ud_name||'',70));
-      lines.push(limit(ud_street||'',70));
-      lines.push(limit(ud_houseNo||'',16));
-      lines.push(limit(ud_postal||'',16));
-      lines.push(limit(ud_town||'',35));
-      lines.push((ud_country||'').toUpperCase());
-    } else {
-      lines.push('','','','','','','');
-    }
-
-    // Payment reference
-    const tp = referenceType || 'NON'; // 'QRR' (with QR-IBAN), 'SCOR' (ISO 11649), 'NON'
-    lines.push(tp);
-    lines.push(tp==='NON' ? '' : (reference||'')); // empty if NON
-
-    // Unstructured message (Ustrd)
+  // Swiss QR-bill (SPC 0200)
+  function makeSwissQr({iban, creditorName, street, houseNo, postal, town, country='CH', amount, currency='CHF', message='', referenceType='NON', reference:''}){
+    const IB=cleanIban(iban);
+    if(!/^(CH|LI)[0-9A-Z]{19}$/.test(IB)) throw new Error('Swiss IBAN (CH/LI) required');
+    const lines=[];
+    lines.push('SPC','0200','1',IB);
+    lines.push('S', limit(creditorName||'Payee',70), limit(street||'',70), limit(houseNo||'',16), limit(postal||'',16), limit(town||'',35), (country||'CH').toUpperCase());
+    lines.push(amount?Number(amount).toFixed(2):'', (currency==='EUR'||currency==='CHF')?currency:'CHF');
+    // Ultimate Debtor (empty)
+    lines.push('','','','','','','');
+    lines.push(referenceType||'NON', (referenceType==='NON'?'':(reference||'')));
     lines.push(limit(message||'',140));
-
-    // Trailer
     lines.push('EPD');
-
-    // No Billing info (additional) here
     return lines.join('\n');
   }
 
-  // -------- Pix (EMV BR Code) --------
-  function emvKV(id, value){ const v = String(value); const len = String(v.length).padStart(2,'0'); return id + len + v; }
-  function emvSum(arr){ return arr.join(''); }
-  function crc16ccitt(str){
-    let crc = 0xFFFF;
-    for (let i = 0; i < str.length; i++){
-      crc ^= (str.charCodeAt(i) << 8);
-      for (let j = 0; j < 8; j++){
-        if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
-        else crc <<= 1;
-        crc &= 0xFFFF;
-      }
-    }
-    return crc.toString(16).toUpperCase().padStart(4,'0');
-  }
-  function makePixEmv({ key, name, city, amount, note }){
-    const payloadFormat = emvKV('00','01');
-    const poiMethod     = emvKV('01','12'); // dynamic
-    const gui           = emvKV('00','br.gov.bcb.pix');
-    const guiData = [gui];
-    if (key)  guiData.push(emvKV('01', key));
-    if (note) guiData.push(emvKV('02', String(note).substring(0,25)));
-    const guiStr = emvKV('26', emvSum(guiData));
-    const merchantCat  = emvKV('52','0000');
-    const currencyBRL  = emvKV('53','986');
-    const amt          = amount ? emvKV('54', Number(amount).toFixed(2)) : '';
-    const countryCode  = emvKV('58','BR');
-    const nm           = emvKV('59', String(name||'Payee').substring(0,25));
-    const ct           = emvKV('60', String(city||'SAO PAULO').toUpperCase().substring(0,15));
-    const addtl        = emvKV('62', emvKV('05','***'));
-    const base = emvSum([payloadFormat, poiMethod, guiStr, merchantCat, currencyBRL, amt, countryCode, nm, ct, addtl, '6304']);
-    const crc = crc16ccitt(base);
-    return base + crc;
+  // Pix EMV BR Code
+  function emvKV(id,val){ const v=String(val); return id + String(v.length).padStart(2,'0') + v; }
+  function crc16ccitt(str){ let crc=0xFFFF; for(let i=0;i<str.length;i++){ crc ^= (str.charCodeAt(i)<<8); for(let j=0;j<8;j++){ crc=(crc&0x8000)?((crc<<1)^0x1021):(crc<<1); crc&=0xFFFF; } } return crc.toString(16).toUpperCase().padStart(4,'0'); }
+  function makePix({key,name,city,amount,note}){
+    const base = [
+      emvKV('00','01'),
+      emvKV('01','12'),
+      emvKV('26', [emvKV('00','br.gov.bcb.pix'), key?emvKV('01',key):'', note?emvKV('02', String(note).substring(0,25)):''].join('')),
+      emvKV('52','0000'),
+      emvKV('53','986'),
+      amount?emvKV('54', Number(amount).toFixed(2)):'',
+      emvKV('58','BR'),
+      emvKV('59', String(name||'Payee').substring(0,25)),
+      emvKV('60', String(city||'SAO PAULO').toUpperCase().substring(0,15)),
+      emvKV('62', emvKV('05','***')),
+      '6304'
+    ].join('');
+    return base + crc16ccitt(base);
   }
 
-  // -------- UPI --------
-  function makeUpiUri({ pa, pn, amount, note }){
-    const q = new URLSearchParams();
-    q.set('pa', pa);
-    q.set('pn', pn || 'Payee');
-    if (amount) q.set('am', Number(amount).toFixed(2));
-    q.set('cu','INR');
-    if (note) q.set('tn', note);
-    return `upi://pay?${q.toString()}`;
+  // UPI deep link
+  function makeUpi({pa,pn,amount,note}){ const q=new URLSearchParams(); q.set('pa',pa); q.set('pn',pn||'Payee'); if(amount) q.set('am', Number(amount).toFixed(2)); q.set('cu','INR'); if(note) q.set('tn',note); return `upi://pay?${q.toString()}`; }
+
+  // Lightning / BTC / Solana
+  function lnurlFromAddress(addr){ if(!addr||!addr.includes('@')) return null; const [u,d]=addr.split('@'); return `https://${d}/.well-known/lnurlp/${u}`; }
+  function btcUri({address,amount,note}){ const q=new URLSearchParams(); if(amount) q.set('amount', Number(amount).toFixed(8)); if(note) q.set('label',note); return `bitcoin:${address}${q.toString()? '?'+q.toString():''}`; }
+  function solUri({address, splTokenMint, amount}){ const q=new URLSearchParams(); if(amount) q.set('amount', Number(amount).toFixed(2)); if(splTokenMint) q.set('spl-token', splTokenMint); return `solana:${address}${q.toString()? '?'+q.toString():''}`; }
+
+  // Consumer links
+  const paypalUrl=(h,a,c)=>`https://paypal.me/${h}${a?'/'+Number(a)+(c?c.toUpperCase():''):''}`;
+  const revolutUrl=(h)=>`https://revolut.me/${h}`;
+  const cashUrl=(h,a)=>`https://cash.app/$${h}${a?'/'+Number(a):''}`;
+  const venmoUrl=(u)=>`https://venmo.com/u/${u}`;
+
+  // ---------- Render helpers ----------
+  function svg(icon){
+    // Lightweight inline icons
+    if(icon==='bank') return '<svg viewBox="0 0 24 24" fill="none"><path d="M3 10h18M5 10v8m4-8v8m4-8v8m4-8v8M2 20h20M12 4l9 6H3l9-6Z" stroke="currentColor" stroke-width="1.4"/></svg>';
+    if(icon==='ch') return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.4"/><path d="M12 7v10M7 12h10" stroke="currentColor" stroke-width="1.6"/></svg>';
+    if(icon==='pix') return '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.4"/><path d="M8 12l4-4 4 4-4 4-4-4Z" stroke="currentColor" stroke-width="1.4"/></svg>';
+    if(icon==='upi') return '<svg viewBox="0 0 24 24" fill="none"><path d="M4 12h16M12 4v16" stroke="currentColor" stroke-width="1.4"/></svg>';
+    if(icon==='zap') return '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8Z" stroke="currentColor" stroke-width="1.2"/></svg>';
+    if(icon==='btc') return '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M9 8h5a2 2 0 110 4H9h6a2 2 0 110 4H9m2-10v12" stroke="currentColor" stroke-width="1.2"/></svg>';
+    if(icon==='sol') return '<svg viewBox="0 0 24 24" fill="none"><path d="M7 7h10l-3 3H4l3-3Zm0 7h10l-3 3H4l3-3Zm3-7h10l-3 3H7l3-3Z" stroke="currentColor" stroke-width="1.2"/></svg>';
+    if(icon==='evm') return '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2l6 10-6 10-6-10 6-10Zm0 6l3 4-3 2-3-2 3-4Z" stroke="currentColor" stroke-width="1.2"/></svg>';
+    if(icon==='pay') return '<svg viewBox="0 0 24 24" fill="none"><path d="M3 7h18v10H3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.2"/></svg>';
+    return '';
   }
 
-  // -------- Lightning / Bitcoin / Solana --------
-  function lnurlFromAddress(addr){ if(!addr || !addr.includes('@')) return null; const [u,d]=addr.split('@'); return `https://${d}/.well-known/lnurlp/${u}`; }
-  function makeSolanaUri({ address, splTokenMint, amount }){ const q=new URLSearchParams(); if(amount) q.set('amount', Number(amount).toFixed(2)); if(splTokenMint) q.set('spl-token', splTokenMint); const qs=q.toString(); return `solana:${address}${qs? '?'+qs:''}`; }
-  function makeBitcoinUri({ address, amount, note }){ const q=new URLSearchParams(); if(amount) q.set('amount', Number(amount).toFixed(8)); if (note) q.set('label', note); const qs=q.toString(); return `bitcoin:${address}${qs? '?'+qs:''}`; }
-
-  // -------- Consumer fintech links --------
-  function makePaypalMeUrl(handle, amount, ccy){
-    // PayPal: /<amount><CCY> allowed (e.g., /25USD). (Official FAQ)
-    let url = `https://paypal.me/${handle}`;
-    if (amount){
-      url += `/${Number(amount).toString()}${ccy ? ccy.toUpperCase() : ''}`;
-    }
-    return url;
-  }
-  function makeRevolutUrl(handle){ return `https://revolut.me/${handle}`; } // payer can enter amount on landing (per Revolut help)
-  function makeCashAppUrl(cashtag, amount){ return `https://cash.app/$${cashtag}${amount? '/'+Number(amount).toString(): ''}`; }
-  function makeVenmoUrl(user){ return `https://venmo.com/u/${user}`; } // web profile; app completes payment
-
-  // -------- Ordering --------
-  function preferOrder(list){
-    const boosts = [];
-    if (region === 'IN') boosts.push('UPI');
-    if (region === 'BR') boosts.push('PIX');
-    if (['DE','FR','IT','ES','NL','BE','AT','PT','FI','IE'].includes(region)) boosts.push('SEPA');
-    if (['CH','LI'].includes(region)) boosts.push('SWISS');
-    boosts.push('Lightning','BTC','Solana','EVM','PayPal','Revolut','CashApp','Venmo','IBAN','Zelle','Interac','PayID','FPS');
-    const score = Object.fromEntries(boosts.map((k,i)=>[k, boosts.length - i]));
-    return list.sort((a,b)=>(score[b.kind]||0)-(score[a.kind]||0));
+  function railItem(kind, label, sub, icon){
+    const div = document.createElement('div');
+    div.className='rail'; div.innerHTML = `${svg(icon)} <div><div>${label}</div><small>${sub||''}</small></div>`;
+    div.onclick = ()=> openRail(kind);
+    return div;
   }
 
-  function mkBtn(label, sub, href, copyable){
-    const a = document.createElement(href ? 'a' : 'button');
-    a.className = 'btn';
-    if (href){ a.href = href; a.target = '_blank'; a.rel = 'noopener'; }
-    a.innerHTML = `<div>${label}<br><small>${sub||''}</small></div>` + (copyable? `<div class="copy">copy</div>` : '');
-    if (copyable){
-      a.addEventListener('click', e => { e.preventDefault(); copy(sub); a.querySelector('.copy').textContent='copied'; setTimeout(()=>a.querySelector('.copy').textContent='copy',1200); });
-    }
-    return a;
+  function regionBoost(list){
+    const reg = S.region;
+    const score = {};
+    const boost = (k,s)=>score[k]=(score[k]||0)+s;
+    if (reg==='IN') boost('UPI',5);
+    if (reg==='BR') boost('PIX',5);
+    if (['DE','FR','IT','ES','NL','BE','PT','AT','FI','IE'].includes(reg)) boost('SEPA',4);
+    if (['CH','LI'].includes(reg)) boost('SWISS',5);
+    // defaults
+    boost('Lightning',2); boost('BTC',1); boost('Solana',1);
+    return list.sort((a,b)=> (score[b.kind]||0)-(score[a.kind]||0));
   }
 
-  function render(profile){
-    // Header
-    $('title').textContent = (profile.name? `${profile.name} — Pay` : 'Pay');
-    $('subtitle').textContent = t('oneQr');
-    if (profile.avatar){ $('avatar').src = profile.avatar; } else { $('avatar').style.display='none'; }
-    const tags = [];
-    if (profile.city) tags.push(`<span class="tag">${profile.city}</span>`);
-    if (profile.category) tags.push(`<span class="tag">${profile.category}</span>`);
-    $('meta').innerHTML = tags.join(' ');
+  function pickPrimary(){
+    const available = S.rails.map(r=>r.kind);
+    const reg = S.region;
+    const prefers = [
+      (['CH','LI'].includes(reg) && available.includes('SWISS')) && 'SWISS',
+      (['IN'].includes(reg) && available.includes('UPI')) && 'UPI',
+      (['BR'].includes(reg) && available.includes('PIX')) && 'PIX',
+      (available.includes('SEPA')) && 'SEPA',
+      (available.includes('Lightning')) && 'Lightning',
+      (available.includes('PayPal')) && 'PayPal',
+      (available.includes('BTC')) && 'BTC'
+    ].filter(Boolean);
+    return prefers[0] || available[0] || null;
+  }
 
-    $('pagelink').textContent = location.href;
-    $('copylink').onclick = () => copy(location.href);
-    $('share').onclick = async () => {
-      const url = location.href, title = document.title || 'Pay link', text = 'Pay via any rail';
-      if (navigator.share){ try{ await navigator.share({title, text, url}); } catch(e){} }
-      else { await navigator.clipboard.writeText(url); alert(t('linkCopied')); }
-    };
-    setQR('qr', location.href, 180);
+  // ---------- Modal logic ----------
+  const SHEET = $('sheet'), SHEET_TITLE = $('sheetTitle'), SHEET_BODY = $('sheetBody');
+  $('closeSheet').onclick = ()=> SHEET.classList.remove('on');
+  SHEET.addEventListener('click', e=>{ if(e.target===SHEET) SHEET.classList.remove('on'); });
 
-    const r = profile.rails || {};
-    const rows = [];
+  function openRail(kind){
+    const p = S.profile, r = p.rails || {};
+    const amt = amountEl.value.trim(); const memo = noteEl.value.trim(); const ccy = (fiatEl.value.trim() || p.currency || '').toUpperCase();
+    const name = p.name || 'Payee';
 
-    // UPI
-    if (r.upi){
-      rows.push({kind:'UPI', node: mkBtn('UPI', `${r.upi}${fiat? ' · '+fiat : ''}`, makeUpiUri({ pa:r.upi, pn:profile.name, amount, note }), false)});
+    SHEET_TITLE.textContent = `Pay via ${kind}`;
+    const left = document.createElement('div');
+    const right = document.createElement('div');
+    right.className='qrbox';
+    const c = document.createElement('canvas'); c.width=220; c.height=220; right.appendChild(c);
+    const dl = document.createElement('button'); dl.className='btn small'; dl.textContent='download QR (PNG)'; right.appendChild(dl);
+
+    let openHref = '#', copyText = '', note='';
+    let qrPayload = null, infoHtml = '';
+
+    if(kind==='SEPA'){
+      const epc = makeEpcSctQr({ name, iban:r.iban, amount: (ccy==='EUR')?amt:undefined, remittance:memo });
+      const pto = makePayto({ iban:r.iban, amount: (ccy==='EUR')?amt:undefined, remittance:memo });
+      openHref=pto; qrPayload=epc; copyText=r.iban;
+      infoHtml = `<div class="muted">Many EU bank apps scan this and pre‑fill. If available, pick <b>Instant</b> in your bank app. Same QR works for Instant.</div>
+                  <div style="margin-top:8px"><code>${r.iban}</code></div>`;
     }
-
-    // Pix
-    if (r.pix_key){
-      const pixPayload = makePixEmv({ key:r.pix_key, name: profile.pix_name || profile.name || 'Payee', city: profile.pix_city || 'SAO PAULO', amount, note });
-      $('pixBox').classList.remove('hidden');
-      $('pixCopy').value = pixPayload;
-      $('copyPix').onclick = ()=> copy(pixPayload);
-      setQR('pixQr', pixPayload, 180);
-      $('dlPixQr').onclick = () => { const url = $('pixQr').toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download='pix-qr.png'; a.click(); };
-      rows.push({kind:'PIX', node: mkBtn('Pix', (profile.pix_name || 'Payee') + (amount? ` · BRL ${Number(amount).toFixed(2)}`:''), '#', false)});
-    }
-
-    // IBAN / SEPA
-    if (r.iban){
-      $('ibanBox').classList.remove('hidden');
-      $('ibanCode').textContent = r.iban;
-      $('copyIban').onclick = () => copy(r.iban);
-      const epc = makeEpcSctQrPayload({ name: profile.name || 'Payee', iban: r.iban, amount, remittance: note });
-      setQR('sepaQr', epc, 180);
-      $('dlSepaQr').onclick = () => { const url = $('sepaQr').toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download='sepa-qr.png'; a.click(); };
-      const pto = makePaytoUri({ iban:r.iban, amount, remittance: note });
-      $('paytoLink').href = pto;
-      rows.push({kind:'SEPA', node: mkBtn('IBAN / SEPA', r.iban, pto, false)});
-    }
-
-    // Swiss QR-bill if CH/LI IBAN + Swiss address
-    if (r.iban && /^(CH|LI)/i.test(r.iban) && (profile.ch_street || profile.ch_postal || profile.ch_city)){
-      const ccy = (fiat==='EUR' || fiat==='CHF') ? fiat : (profile.currency==='EUR'?'EUR':'CHF');
-      const payload = makeSwissQrPayload({
-        iban: r.iban,
-        creditorName: profile.name || 'Payee',
-        street: profile.ch_street || '',
-        houseNo: profile.ch_house_no || '',
-        postal: profile.ch_postal || '',
-        town: profile.ch_city || '',
-        country: (profile.ch_country || 'CH'),
-        amount,
-        currency: ccy,
-        message: note || '',
-        referenceType: 'NON',
-        reference: ''
+    if(kind==='SWISS'){
+      const chCcy = (ccy==='CHF'||ccy==='EUR')?ccy:'CHF';
+      const payload = makeSwissQr({
+        iban:r.iban, creditorName:name,
+        street:p.ch_street, houseNo:p.ch_house_no, postal:p.ch_postal, town:p.ch_city, country:p.ch_country||'CH',
+        amount:amt, currency:chCcy, message:memo, referenceType:'NON'
       });
-      $('chBox').classList.remove('hidden');
-      $('chCreditor').textContent = (profile.name || '') + (profile.ch_city ? ' · ' + profile.ch_city : '');
-      $('chIban').textContent = r.iban;
-      $('chCcy').textContent = ccy;
-      setQR('chQr', payload, 180);
-      $('dlChQr').onclick = () => { const url = $('chQr').toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download='swiss-qr.png'; a.click(); };
-      rows.push({kind:'SWISS', node: mkBtn('Swiss QR‑bill', `${ccy} ${amount? Number(amount).toFixed(2): ''}`, '#', false)});
+      qrPayload=payload; openHref='#'; copyText=r.iban;
+      infoHtml = `<div class="muted">Swiss QR‑bill (SPC 0200). Works with Swiss e-/m‑banking.</div>
+                  <div style="margin-top:8px"><code>${r.iban}</code></div>`;
     }
+    if(kind==='UPI'){
+      const url = makeUpi({ pa:r.upi, pn:name, amount:amt, note:memo });
+      openHref=url; qrPayload=url; copyText=r.upi;
+      infoHtml = `<div class="muted">Opens your UPI app. QR encodes the same UPI link for scanning.</div>
+                  <div style="margin-top:8px"><code>${r.upi}</code></div>`;
+    }
+    if(kind==='PIX'){
+      const payload = makePix({ key:r.pix_key, name:p.pix_name||name, city:p.pix_city||'SAO PAULO', amount:amt, note:memo });
+      qrPayload=payload; openHref='#'; copyText=payload;
+      infoHtml = `<div class="muted">Copy code or scan EMV BR Code in your bank app.</div>`;
+    }
+    if(kind==='Lightning'){
+      const ln = r.lnurlp_url || lnurlFromAddress(r.lightning_address);
+      openHref=ln; qrPayload=ln; copyText = r.lightning_address || ln;
+      infoHtml = `<div class="muted">Lightning Address / LNURL‑Pay</div>`;
+    }
+    if(kind==='BTC'){
+      const url = btcUri({ address:r.bitcoin_address, amount:amt? (Number(amt)/100000).toFixed(8):undefined, note:memo }); // optional: crude map if you put fiat
+      openHref=url; qrPayload=url; copyText=r.bitcoin_address;
+      infoHtml = `<div class="muted">Bitcoin on‑chain</div><div style="margin-top:8px"><code>${r.bitcoin_address}</code></div>`;
+    }
+    if(kind==='Solana'){
+      const url = solUri({ address:r.solana_address, splTokenMint:r.solana_usdc_mint, amount:amt });
+      openHref=url; qrPayload=url; copyText=r.solana_address;
+      infoHtml = `<div class="muted">${r.solana_usdc_mint?'Solana Pay (USDC)':'Solana (SOL)'}</div><div style="margin-top:8px"><code>${r.solana_address}</code></div>`;
+    }
+    if(kind==='PayPal'){ openHref=paypalUrl(r.paypal_me, amt, ccy); copyText=openHref; infoHtml = `<div class="muted">PayPal.Me link</div>`; qrPayload=openHref; }
+    if(kind==='Revolut'){ openHref=revolutUrl(r.revolut_me); copyText=openHref; infoHtml = `<div class="muted">Revolut payment link</div>`; qrPayload=openHref; }
+    if(kind==='CashApp'){ openHref=cashUrl(r.cash_app, amt); copyText=openHref; infoHtml = `<div class="muted">Cash App link</div>`; qrPayload=openHref; }
+    if(kind==='Venmo'){ openHref=venmoUrl(r.venmo); copyText=openHref; infoHtml = `<div class="muted">Venmo profile</div>`; qrPayload=openHref; }
+    if(kind==='Zelle'){ openHref='#'; copyText=r.zelle; infoHtml = `<div class="muted">Use your bank/Zelle app and paste this ID:</div><div style="margin-top:8px"><code>${r.zelle}</code></div>`; }
+    if(kind==='Interac'){ openHref='#'; copyText=r.interac_email; infoHtml = `<div class="muted">Send an Interac e‑Transfer to:</div><div style="margin-top:8px"><code>${r.interac_email}</code></div>`; }
+    if(kind==='PayID'){ openHref='#'; copyText=r.payid_au; infoHtml = `<div class="muted">Use PayID (AU):</div><div style="margin-top:8px"><code>${r.payid_au}</code></div>`; }
+    if(kind==='FPS'){ openHref='#'; copyText=r.fps_id; infoHtml = `<div class="muted">Use FPS (HK):</div><div style="margin-top:8px"><code>${r.fps_id}</code></div>`; }
 
-    // Lightning
-    const lnurl = r.lnurlp_url || lnurlFromAddress(r.lightning_address);
-    if (lnurl){
-      const sub = r.lightning_address ? r.lightning_address : (new URL(lnurl)).hostname;
-      rows.push({kind:'Lightning', node: mkBtn('⚡ Lightning', sub, lnurl, false)});
-    }
+    // left content
+    left.innerHTML = `
+      ${infoHtml}
+      <div class="actions" style="margin-top:12px">
+        <a class="btn primary" href="${openHref}" target="_blank" rel="noopener">Open</a>
+        <button id="copyRail" class="btn">copy</button>
+      </div>
+      <div class="note">Tip: If Open doesn't switch to your app, scan the QR on the right.</div>
+    `;
 
-    // Bitcoin on-chain
-    if (r.bitcoin_address){
-      const href = makeBitcoinUri({ address: r.bitcoin_address, amount, note });
-      rows.push({kind:'BTC', node: mkBtn('₿ Bitcoin', r.bitcoin_address, href, true)});
-    }
+    SHEET_BODY.innerHTML=''; SHEET_BODY.appendChild(left); SHEET_BODY.appendChild(right);
 
-    // Solana / Solana Pay (USDC or SOL)
-    if (r.solana_address){
-      const href = makeSolanaUri({ address:r.solana_address, splTokenMint:r.solana_usdc_mint, amount });
-      const sub = r.solana_usdc_mint ? 'Solana Pay (USDC)' : 'Solana (SOL)';
-      rows.push({kind:'Solana', node: mkBtn('◎ Solana', sub, href, false)});
-    }
+    // QR payload (only when we have one)
+    if (qrPayload){ safeQR(c, qrPayload); dl.onclick = ()=>{ const url=c.toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download=`${kind.toLowerCase()}-qr.png`; a.click(); }; }
+    else { right.innerHTML = '<div class="note">No QR for this rail; use the Open button.</div>'; }
 
-    // Ethereum / EVM
-    if (r.ethereum_address){
-      rows.push({kind:'EVM', node: mkBtn('Ξ Ethereum', r.ethereum_address, '#', true)});
-    }
-    if (r.usdt_evm){
-      rows.push({kind:'EVM', node: mkBtn('₮ USDT (EVM)', r.usdt_evm, '#', true)});
-    }
-
-    // Consumer fintech links
-    if (r.paypal_me){
-      rows.push({kind:'PayPal', node: mkBtn('PayPal.Me', r.paypal_me, makePaypalMeUrl(r.paypal_me, amount, fiat), false)});
-    }
-    if (r.revolut_me){
-      rows.push({kind:'Revolut', node: mkBtn('Revolut.me', r.revolut_me, makeRevolutUrl(r.revolut_me), false)});
-    }
-    if (r.cash_app){
-      rows.push({kind:'CashApp', node: mkBtn('Cash App', '$'+r.cash_app, makeCashAppUrl(r.cash_app, amount), false)});
-    }
-    if (r.venmo){
-      rows.push({kind:'Venmo', node: mkBtn('@'+r.venmo, makeVenmoUrl(r.venmo), false)});
-    }
-
-    // Copy-only IDs (regional)
-    if (r.zelle){ rows.push({kind:'Zelle',  node: mkBtn('Zelle (copy)', r.zelle, '#', true)}); }
-    if (r.interac_email){ rows.push({kind:'Interac e‑Transfer (copy)', node: mkBtn('Interac', r.interac_email, '#', true)}); }
-    if (r.payid_au){ rows.push({kind:'PayID', node: mkBtn('PayID (AU)', r.payid_au, '#', true)}); }
-    if (r.fps_id){ rows.push({kind:'FPS', node: mkBtn('HK FPS (copy)', r.fps_id, '#', true)}); }
-
-    // Order + render with grouping
-    const ordered = preferOrder(rows);
-    const railsEl = $('rails');
-    
-    // Group rails by type
-    const bankRails = ordered.filter(o => ['SEPA', 'SWISS', 'UPI', 'PIX', 'Zelle', 'Interac e‑Transfer (copy)', 'PayID', 'FPS'].includes(o.kind));
-    const cryptoRails = ordered.filter(o => ['Lightning', 'BTC', 'Solana', 'EVM'].includes(o.kind));
-    const walletRails = ordered.filter(o => ['PayPal', 'Revolut', 'CashApp', 'Venmo'].includes(o.kind));
-    
-    // Clear existing content
-    railsEl.innerHTML = '';
-    
-    // Add bank rails with heading
-    if (bankRails.length > 0) {
-      const bankHeading = document.createElement('div');
-      bankHeading.className = 'railTitle';
-      bankHeading.textContent = t('bankRails');
-      railsEl.appendChild(bankHeading);
-      bankRails.forEach(o => railsEl.appendChild(o.node));
-    }
-    
-    // Add crypto rails with heading
-    if (cryptoRails.length > 0) {
-      const cryptoHeading = document.createElement('div');
-      cryptoHeading.className = 'railTitle';
-      cryptoHeading.textContent = t('crypto');
-      cryptoHeading.style.marginTop = '20px';
-      railsEl.appendChild(cryptoHeading);
-      cryptoRails.forEach(o => railsEl.appendChild(o.node));
-    }
-    
-    // Add wallet rails with heading
-    if (walletRails.length > 0) {
-      const walletHeading = document.createElement('div');
-      walletHeading.className = 'railTitle';
-      walletHeading.textContent = t('walletLinks');
-      walletHeading.style.marginTop = '20px';
-      railsEl.appendChild(walletHeading);
-      walletRails.forEach(o => railsEl.appendChild(o.node));
-    }
-
-    // If no rails
-    if (!ordered.length){
-      railsEl.innerHTML = `<div class="muted">${t('noRails')}</div>`;
-    }
+    $('copyRail').onclick = ()=> navigator.clipboard.writeText(copyText||openHref||'');
+    SHEET.classList.add('on');
   }
 
-  // -------- Fetch profile + boot --------
-  const profileUrl = `${location.origin}${location.pathname.replace(/index\.html?$/,'')}profiles/${encodeURIComponent(username)}.json`;
-  console.log('Fetching profile from:', profileUrl);
-fetch(profileUrl)
-    .then(r=> {
-      console.log('Response status:', r.status);
-      return r.ok ? r.json() : Promise.reject(new Error('profile not found'));
-    })
-    .then(p => {
-      console.log('Profile loaded:', p);
-      render(p);
-    })
-    .catch(err => {
+  // ---------- Build rails ----------
+  function buildRails(){
+    const p = S.profile, r = p.rails||{}, grid = $('rails'); grid.innerHTML='';
+    S.rails = []; // reset
+
+    function push(kind,label,sub,icon,cond){
+      if(!cond) return;
+      S.rails.push({kind,label,sub});
+      grid.appendChild(railItem(kind,label,sub,icon));
+    }
+
+    push('SEPA','IBAN / SEPA', r.iban||'', 'bank', !!r.iban);
+    push('SWISS','Swiss QR‑bill', (r.iban||'').startsWith('CH')|| (r.iban||'').startsWith('LI') ? 'CH/LI IBAN' : '', 'ch', !!(r.iban && ((r.iban||'').startsWith('CH')||(r.iban||'').startsWith('LI')) && (p.ch_city||p.ch_street)));
+    push('UPI','UPI', r.upi||'', 'upi', !!r.upi);
+    push('PIX','Pix', p.pix_name? (p.pix_name + (p.pix_city?' · '+p.pix_city:'')) : '', 'pix', !!r.pix_key);
+    push('Lightning','⚡ Lightning', r.lightning_address||r.lnurlp_url||'', 'zap', !!(r.lnurlp_url||r.lightning_address));
+    push('BTC','Bitcoin', r.bitcoin_address||'', 'btc', !!r.bitcoin_address);
+    push('Solana','Solana', r.solana_usdc_mint? 'Solana Pay (USDC)' : (r.solana_address? 'Solana (SOL)':''), 'sol', !!r.solana_address);
+    push('PayPal','PayPal.Me', r.paypal_me||'', 'pay', !!r.paypal_me);
+    push('Revolut','Revolut.me', r.revolut_me||'', 'pay', !!r.revolut_me);
+    push('CashApp','Cash App', r.cash_app? ('$'+r.cash_app):'', 'pay', !!r.cash_app);
+    push('Venmo','Venmo', r.venmo?('@'+r.venmo):'', 'pay', !!r.venmo);
+    push('Zelle','Zelle', r.zelle||'', 'pay', !!r.zelle);
+    push('Interac','Interac e‑Transfer', r.interac_email||'', 'pay', !!r.interac_email);
+    push('PayID','PayID (AU)', r.payid_au||'', 'pay', !!r.payid_au);
+    push('FPS','FPS (HK)', r.fps_id||'', 'pay', !!r.fps_id);
+
+    // Primary CTA
+    const primary = pickPrimary();
+    const btn = $('primaryCta');
+    if (primary){ btn.textContent = `Pay with ${primary}`; btn.onclick = (e)=>{ e.preventDefault(); openRail(primary); }; btn.href='#'; }
+    else { btn.textContent='Choose a rail'; btn.onclick = null; btn.href='#rails'; }
+  }
+
+  // ---------- Boot ----------
+  (function boot(){
+    // region
+    try {
+      S.region = (Intl.DateTimeFormat().resolvedOptions().locale || '').split('-')[1] || '';
+    } catch(_) { S.region=''; }
+
+    // hydrate inputs from URL
+    amountEl.value = S.qs.get('amount') || '';
+    noteEl.value = S.qs.get('note') || '';
+    fiatEl.value = (S.qs.get('fiat') || '').toUpperCase();
+
+    // amount chips (contextual)
+    const chipVals = ['5','10','20','35','50','100'];
+    chipsEl.innerHTML = chipVals.map(v=>`<button class="chip" data-v="${v}">${v}</button>`).join('');
+    chipsEl.querySelectorAll('.chip').forEach(b => b.onclick = ()=>{ amountEl.value=b.dataset.v; onInputsChanged(); });
+
+    // events
+    amountEl.oninput = onInputsChanged;
+    noteEl.oninput = onInputsChanged;
+    fiatEl.oninput = onInputsChanged;
+
+    // universal actions
+    $('copylink').onclick = ()=> navigator.clipboard.writeText(currentUrl());
+    $('share').onclick = async ()=> { if(navigator.share){ try{ await navigator.share({ title: document.title, text: 'Pay via any rail', url: currentUrl() });}catch(e){} } else { await navigator.clipboard.writeText(currentUrl()); alert('link copied'); } };
+
+    // fetch profile
+    const profileUrl = `${location.origin}${location.pathname.replace(/index\.html?$/,'')}profiles/${encodeURIComponent(S.qs.get('u'))}.json`;
+    fetch(profileUrl).then(r => r.ok ? r.json() : Promise.reject(new Error('profile not found'))).then(p => {
+      S.profile = p;
+      $('title').textContent = (p.name? `${p.name} — Pay` : 'Pay');
+      $('subtitle').textContent = 'One QR, any money.';
+      if (p.avatar) { $('avatar').src = p.avatar; } else { $('avatar').style.display='none'; }
+      const tags = []; if (p.city) tags.push(`<span class="tag">${p.city}</span>`); if (p.category) tags.push(`<span class="tag">${p.category}</span>`);
+      $('meta').innerHTML = tags.join(' ');
+      buildRails();
+      setUniversalQr();
+    }).catch(err=>{
       console.error(err);
-      document.getElementById('title').textContent = 'UPL';
-      document.getElementById('subtitle').textContent = t('oneQr');
-      document.getElementById('rails').innerHTML = `
-        <div class="card" style="border-style:dashed">
-          <div style="font-weight:600; margin-bottom:6px">${t('noProfile')}</div>
-          <div class="muted" style="margin-bottom:10px">${t('appendUrl')}</div>
-          <a class="btn" href="make.html"><div>${t('createProfile')}</div><div>→</div></a>
-        </div>`;
-      document.getElementById('pagelink').textContent = location.href;
-      document.getElementById('copylink').onclick = () => navigator.clipboard.writeText(location.href);
-      setQR('qr', location.href, 180);
+      $('title').textContent='UPL'; $('subtitle').textContent='One QR, any money.';
+      $('rails').innerHTML = '<div class="muted">No profile found. <a href="make.html">Create your profile</a>.</div>';
+      setUniversalQr();
     });
+  })();
+
+  function onInputsChanged(){ setUniversalQr(); }
 })();
 </script>
 
-<!-- Optional: Cloudflare Web Analytics (free) -->
-<!-- <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token":"YOUR_TOKEN"}'></script> -->
-
+<!-- Optional Cloudflare Analytics
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token":"YOUR_TOKEN"}'></script>
+-->
 </body>
 </html>
