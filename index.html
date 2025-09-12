@@ -137,7 +137,26 @@
 
 <!-- QR library local, with CDN fallback -->
 <script src="./assets/qrcode.min.js"></script>
-<script>if(typeof QRCode==='undefined'){document.write('<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>')}</script>
+<script>
+// Fallback to CDN if local file fails
+if(typeof QRCode==='undefined'){
+  console.log('Local QR code library not loaded, trying CDN...');
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+  script.onload = function() {
+    console.log('QR code library loaded from CDN');
+    // Re-render QRs after library loads
+    if (typeof setUniversalQr === 'function') {
+      setUniversalQr();
+    }
+  };
+  script.onerror = function() {
+    console.error('Failed to load QR code library from CDN');
+    alert('QR code generation is not available. Please check your internet connection.');
+  };
+  document.head.appendChild(script);
+}
+</script>
 
 <script>
 (function(){
@@ -170,24 +189,44 @@
     return url.toString();
   }
 
-  function safeQR(canvas, text){
-    try{
-      QRCode.toCanvas(canvas, text, { width: canvas.width||220, margin: 0, errorCorrectionLevel: 'M' }, (err)=>{
-        if (err) {
-          canvas.getContext('2d').fillStyle='#fff';
-          canvas.getContext('2d').fillRect(0,0,canvas.width,canvas.height);
-          console.error('QR error', err);
-        }
+  function safeQR(canvasId, text, w=220){
+    try {
+      // Clear any existing QR code
+      const canvas = $(canvasId);
+      
+      // Remove any existing QR code
+      while (canvas.firstChild) {
+        canvas.removeChild(canvas.firstChild);
+      }
+      
+      // Create new QR code
+      new QRCode(canvas, {
+        text: text,
+        width: w,
+        height: w,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
       });
-    }catch(e){
+    } catch(e) {
       console.error('QR draw fail', e);
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle='#000'; ctx.fillText('QR error', 10, 20);
+      const canvas = $(canvasId);
+      // Clear canvas
+      while (canvas.firstChild) {
+        canvas.removeChild(canvas.firstChild);
+      }
+      // Add error message
+      const div = document.createElement('div');
+      div.textContent = 'QR error';
+      div.style.background = '#fff';
+      div.style.color = '#000';
+      div.style.padding = '10px';
+      div.style.textAlign = 'center';
+      canvas.appendChild(div);
     }
   }
 
-  function setUniversalQr(){ safeQR($('universalQr'), currentUrl()); }
+  function setUniversalQr(){ safeQR('universalQr', currentUrl()); }
 
   // ---------- Rail builders ----------
   function cleanIban(s){ return String(s||'').replace(/\s+/g,'').toUpperCase(); }
@@ -395,7 +434,27 @@
     SHEET_BODY.innerHTML=''; SHEET_BODY.appendChild(left); SHEET_BODY.appendChild(right);
 
     // QR payload (only when we have one)
-    if (qrPayload){ safeQR(c, qrPayload); dl.onclick = ()=>{ const url=c.toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download=`${kind.toLowerCase()}-qr.png`; a.click(); }; }
+    if (qrPayload){ 
+      // Create a unique ID for this QR code
+      const qrId = 'qr-' + Math.random().toString(36).substring(2, 15);
+      c.id = qrId;
+      safeQR(qrId, qrPayload); 
+      
+      // Download QR code
+      dl.onclick = ()=>{ 
+        // Find the canvas inside the QR code container
+        const canvas = c.querySelector('canvas');
+        if (canvas) {
+          const url = canvas.toDataURL('image/png'); 
+          const a = document.createElement('a'); 
+          a.href = url; 
+          a.download = `${kind.toLowerCase()}-qr.png`; 
+          a.click();
+        } else {
+          console.error('Canvas not found for QR download');
+        }
+      }; 
+    }
     else { right.innerHTML = '<div class="note">No QR for this rail; use the Open button.</div>'; }
 
     $('copyRail').onclick = ()=> navigator.clipboard.writeText(copyText||openHref||'');
