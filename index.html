@@ -136,7 +136,7 @@
 </div>
 
 <!-- QR library -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
 <script>
 (function(){
@@ -169,7 +169,7 @@
     return url.toString();
   }
 
-  // Simple QR code generation
+  // Simple QR code generation using qrcode.js library
   function generateQR(elementId, text) {
     try {
       const element = document.getElementById(elementId);
@@ -181,22 +181,20 @@
       // Clear previous content
       element.innerHTML = '';
       
-      // Create QR code
-      const qr = qrcode(0, 'M');
-      qr.addData(text);
-      qr.make();
-      
-      // Add to DOM
-      element.innerHTML = qr.createImgTag(4);
-      
-      // Style the image
-      const img = element.querySelector('img');
-      if (img) {
-        img.style.width = '200px';
-        img.style.height = '200px';
-        img.style.display = 'block';
-        img.style.margin = '10px auto';
-      }
+      // Generate QR code
+      QRCode.toCanvas(element, text, {
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      }, function(error) {
+        if (error) {
+          console.error('QR generation error:', error);
+          element.innerHTML = '<div style="padding:10px;background:#fff;color:#000;text-align:center;">QR Error</div>';
+        }
+      });
       
       console.log('QR code generated for', elementId);
     } catch (e) {
@@ -428,22 +426,8 @@
       dl.onclick = () => {
         try {
           // Find the canvas inside the QR code container
-          const img = c.querySelector('img');
-          if (img) {
-            // Create a canvas to draw the QR code
-            const canvas = document.createElement('canvas');
-            canvas.width = 220;
-            canvas.height = 220;
-            const ctx = canvas.getContext('2d');
-            
-            // Draw white background
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, 220, 220);
-            
-            // Draw the QR code
-            ctx.drawImage(img, 10, 10, 200, 200);
-            
-            // Download
+          const canvas = c.querySelector('canvas');
+          if (canvas) {
             const url = canvas.toDataURL('image/png');
             const a = document.createElement('a');
             a.href = url;
