@@ -37,7 +37,7 @@
   .hero{display:grid; grid-template-columns: 220px 1fr; gap:18px; align-items:center}
   @media (max-width:820px){ .hero{grid-template-columns:1fr} }
 
-  canvas.qr{background:#fff; border-radius:12px; width:220px; height:220px}
+  .qr{background:#fff; border-radius:12px; width:220px; height:220px; display:flex; align-items:center; justify-content:center}
 
   .input{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px}
   .txt{flex:1 1 160px; min-width:160px; padding:12px 14px; border:1px solid var(--border); border-radius:12px; background:#0f131a; color:var(--text)}
@@ -68,7 +68,7 @@
   .sheet .grid2{display:grid; grid-template-columns:1fr 220px; gap:16px}
   @media (max-width:760px){ .sheet .grid2{grid-template-columns:1fr} }
   .qrbox{display:flex; flex-direction:column; align-items:center; gap:8px}
-  .qrbox canvas{background:#fff; border-radius:12px; width:220px; height:220px}
+  .qrbox .qr{background:#fff; border-radius:12px; width:220px; height:220px}
   .note{font-size:12px; color:var(--muted)}
 </style>
 </head>
@@ -88,7 +88,7 @@
   <div class="card">
     <div class="hero">
       <div style="display:flex; flex-direction:column; align-items:center; gap:10px">
-        <canvas id="universalQr" class="qr" width="220" height="220"></canvas>
+        <div id="universalQr" class="qr"></div>
         <div class="actions">
           <button class="btn small" id="copylink">copy link</button>
           <button class="btn small" id="share">share</button>
@@ -189,44 +189,47 @@ if(typeof QRCode==='undefined'){
     return url.toString();
   }
 
-  function safeQR(canvasId, text, w=220){
+  // QR code generation function
+  function generateQR(elementId, text, options = {}) {
     try {
-      // Clear any existing QR code
-      const canvas = $(canvasId);
-      
-      // Remove any existing QR code
-      while (canvas.firstChild) {
-        canvas.removeChild(canvas.firstChild);
+      const element = $(elementId);
+      if (!element) {
+        console.error('Element not found:', elementId);
+        return;
       }
       
-      // Create new QR code
-      new QRCode(canvas, {
-        text: text,
-        width: w,
-        height: w,
+      // Clear previous content
+      element.innerHTML = '';
+      
+      // Default options
+      const defaultOptions = {
+        width: 220,
+        height: 220,
         colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.M
+      };
+      
+      // Create new QR code
+      new QRCode(element, {
+        ...defaultOptions,
+        ...options,
+        text: text
       });
-    } catch(e) {
-      console.error('QR draw fail', e);
-      const canvas = $(canvasId);
-      // Clear canvas
-      while (canvas.firstChild) {
-        canvas.removeChild(canvas.firstChild);
+      
+      console.log('QR code generated for', elementId);
+    } catch (e) {
+      console.error('QR generation error:', e);
+      const element = $(elementId);
+      if (element) {
+        element.innerHTML = '<div style="padding:10px;background:#fff;color:#000;text-align:center;">QR Error</div>';
       }
-      // Add error message
-      const div = document.createElement('div');
-      div.textContent = 'QR error';
-      div.style.background = '#fff';
-      div.style.color = '#000';
-      div.style.padding = '10px';
-      div.style.textAlign = 'center';
-      canvas.appendChild(div);
     }
   }
 
-  function setUniversalQr(){ safeQR('universalQr', currentUrl()); }
+  function setUniversalQr() {
+    generateQR('universalQr', currentUrl());
+  }
 
   // ---------- Rail builders ----------
   function cleanIban(s){ return String(s||'').replace(/\s+/g,'').toUpperCase(); }
@@ -362,7 +365,7 @@ if(typeof QRCode==='undefined'){
     const left = document.createElement('div');
     const right = document.createElement('div');
     right.className='qrbox';
-    const c = document.createElement('canvas'); c.width=220; c.height=220; right.appendChild(c);
+    const c = document.createElement('div'); c.className='qr'; right.appendChild(c);
     const dl = document.createElement('button'); dl.className='btn small'; dl.textContent='download QR (PNG)'; right.appendChild(dl);
 
     let openHref = '#', copyText = '', note='';
@@ -434,28 +437,71 @@ if(typeof QRCode==='undefined'){
     SHEET_BODY.innerHTML=''; SHEET_BODY.appendChild(left); SHEET_BODY.appendChild(right);
 
     // QR payload (only when we have one)
-    if (qrPayload){ 
+    if (qrPayload) {
       // Create a unique ID for this QR code
       const qrId = 'qr-' + Math.random().toString(36).substring(2, 15);
       c.id = qrId;
-      safeQR(qrId, qrPayload); 
+      generateQR(qrId, qrPayload);
       
       // Download QR code
-      dl.onclick = ()=>{ 
-        // Find the canvas inside the QR code container
-        const canvas = c.querySelector('canvas');
-        if (canvas) {
-          const url = canvas.toDataURL('image/png'); 
-          const a = document.createElement('a'); 
-          a.href = url; 
-          a.download = `${kind.toLowerCase()}-qr.png`; 
-          a.click();
-        } else {
-          console.error('Canvas not found for QR download');
+      dl.onclick = () => {
+        try {
+          // Find the canvas inside the QR code container
+          const canvas = c.querySelector('canvas');
+          if (canvas) {
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${kind.toLowerCase()}-qr.png`;
+            a.click();
+          } else {
+            // If no canvas is found, create a temporary one and draw the QR code
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 220;
+            tempCanvas.height = 220;
+            const ctx = tempCanvas.getContext('2d');
+            
+            // Draw white background
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, 220, 220);
+            
+            // Create a temporary QR code
+            const tempQR = document.createElement('div');
+            document.body.appendChild(tempQR);
+            new QRCode(tempQR, {
+              text: qrPayload,
+              width: 200,
+              height: 200,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.M
+            });
+            
+            // Draw the QR code onto the canvas
+            const img = tempQR.querySelector('img');
+            if (img) {
+              img.onload = function() {
+                ctx.drawImage(img, 10, 10, 200, 200);
+                const url = tempCanvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${kind.toLowerCase()}-qr.png`;
+                a.click();
+                document.body.removeChild(tempQR);
+              };
+            } else {
+              alert('Could not generate QR code for download');
+              document.body.removeChild(tempQR);
+            }
+          }
+        } catch (e) {
+          console.error('Error downloading QR code:', e);
+          alert('Could not download QR code');
         }
-      }; 
+      };
+    } else {
+      right.innerHTML = '<div class="note">No QR for this rail; use the Open button.</div>';
     }
-    else { right.innerHTML = '<div class="note">No QR for this rail; use the Open button.</div>'; }
 
     $('copyRail').onclick = ()=> navigator.clipboard.writeText(copyText||openHref||'');
     SHEET.classList.add('on');
@@ -472,13 +518,30 @@ if(typeof QRCode==='undefined'){
       grid.appendChild(railItem(kind,label,sub,icon));
     }
 
+    // Group 1: Bank rails
+    const bankRails = document.createElement('div');
+    bankRails.innerHTML = '<h3>Bank rails</h3>';
+    grid.appendChild(bankRails);
+    
     push('SEPA','IBAN / SEPA', r.iban||'', 'bank', !!r.iban);
     push('SWISS','Swiss QR‑bill', (r.iban||'').startsWith('CH')|| (r.iban||'').startsWith('LI') ? 'CH/LI IBAN' : '', 'ch', !!(r.iban && ((r.iban||'').startsWith('CH')||(r.iban||'').startsWith('LI')) && (p.ch_city||p.ch_street)));
     push('UPI','UPI', r.upi||'', 'upi', !!r.upi);
     push('PIX','Pix', p.pix_name? (p.pix_name + (p.pix_city?' · '+p.pix_city:'')) : '', 'pix', !!r.pix_key);
+    
+    // Group 2: Crypto
+    const cryptoRails = document.createElement('div');
+    cryptoRails.innerHTML = '<h3>Crypto</h3>';
+    grid.appendChild(cryptoRails);
+    
     push('Lightning','⚡ Lightning', r.lightning_address||r.lnurlp_url||'', 'zap', !!(r.lnurlp_url||r.lightning_address));
     push('BTC','Bitcoin', r.bitcoin_address||'', 'btc', !!r.bitcoin_address);
     push('Solana','Solana', r.solana_usdc_mint? 'Solana Pay (USDC)' : (r.solana_address? 'Solana (SOL)':''), 'sol', !!r.solana_address);
+    
+    // Group 3: Wallet links
+    const walletRails = document.createElement('div');
+    walletRails.innerHTML = '<h3>Wallet links</h3>';
+    grid.appendChild(walletRails);
+    
     push('PayPal','PayPal.Me', r.paypal_me||'', 'pay', !!r.paypal_me);
     push('Revolut','Revolut.me', r.revolut_me||'', 'pay', !!r.revolut_me);
     push('CashApp','Cash App', r.cash_app? ('$'+r.cash_app):'', 'pay', !!r.cash_app);
