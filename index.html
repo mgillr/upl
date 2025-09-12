@@ -219,6 +219,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
   .note{font-size:12px; color:var(--muted)}
+  .muted{color:var(--muted)}
   
   /* Screen reader only class */
   .sr-only {
@@ -310,7 +311,61 @@
     <div class="rail-section">
       <h3>Bank Transfer Options</h3>
       <div class="railgrid">
-        <div class="rail" role="button" tabindex="0" aria-label="Pay with IBAN / SEPA: CH4431999123000889012" onclick="javascript:window.openRail('SEPA');return false;">
+        <div class="rail" role="button" tabindex="0" aria-label="Pay with IBAN / SEPA: CH4431999123000889012" 
+          onclick="
+            // Direct inline payment sheet
+            const inlineSheet = document.getElementById('inlinePaymentSheet');
+            const inlineTitle = document.getElementById('inlineSheetTitle');
+            const inlineContent = document.getElementById('inlineSheetContent');
+            
+            inlineTitle.textContent = 'Pay via IBAN / SEPA';
+            inlineContent.innerHTML = `
+              <div>
+                <div class='muted'>Many EU bank apps scan this and pre‑fill. If available, pick <b>Instant</b> in your bank app. Same QR works for Instant.</div>
+                <div style='margin-top:8px'><code>CH4431999123000889012</code></div>
+                <div style='margin-top:16px'>
+                  <a href='#' target='_blank' rel='noopener' class='btn primary' style='margin-right:10px;'>
+                    <svg aria-hidden='true' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
+                      <path d='M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6'></path>
+                      <polyline points='15 3 21 3 21 9'></polyline>
+                      <line x1='10' y1='14' x2='21' y2='3'></line>
+                    </svg>
+                    Open
+                  </a>
+                  <button onclick='navigator.clipboard.writeText(\"CH4431999123000889012\");' class='btn'>
+                    <svg aria-hidden='true' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
+                      <rect x='9' y='9' width='13' height='13' rx='2' ry='2'></rect>
+                      <path d='M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1'></path>
+                    </svg>
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <div style='display:flex;flex-direction:column;align-items:center;'>
+                <div id='direct-qr-sepa' style='width:220px;height:220px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;'>
+                  <div>Generating QR...</div>
+                </div>
+                <button class='btn small' style='margin-top:10px;'>
+                  <svg aria-hidden='true' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
+                    <path d='M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4'></path>
+                    <polyline points='7 10 12 15 17 10'></polyline>
+                    <line x1='12' y1='15' x2='12' y2='3'></line>
+                  </svg>
+                  Download QR
+                </button>
+              </div>
+            `;
+            
+            // Show the sheet
+            inlineSheet.style.display = 'block';
+            
+            // Generate QR code
+            setTimeout(() => {
+              window.generateQR('direct-qr-sepa', 'CH4431999123000889012');
+            }, 100);
+            
+            return false;
+          ">
           <svg viewBox="0 0 24 24" fill="none"><path d="M3 10h18M5 10v8m4-8v8m4-8v8m4-8v8M2 20h20M12 4l9 6H3l9-6Z" stroke="currentColor" stroke-width="1.4"/></svg>
           <div><div>IBAN / SEPA</div><small>CH4431999123000889012</small></div>
         </div>
