@@ -360,7 +360,7 @@
 </div>
 
 <!-- Modal sheet -->
-<div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+<div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" style="display:none;">
   <div class="panel">
     <div class="head">
       <div class="title" id="sheetTitle">Pay</div>
@@ -374,6 +374,19 @@
     </div>
     <div id="sheetBody" class="grid2">
       <!-- left: info + buttons; right: QR -->
+    </div>
+  </div>
+</div>
+
+<!-- Inline payment sheet for demo -->
+<div id="inlinePaymentSheet" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:100; padding:20px; overflow:auto;">
+  <div style="max-width:800px; margin:40px auto; background:#1a2230; border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h2 id="inlineSheetTitle" style="margin:0; font-size:24px;">Payment Details</h2>
+      <button onclick="document.getElementById('inlinePaymentSheet').style.display='none';" style="background:none; border:1px solid #3a4555; border-radius:8px; padding:8px 12px; color:white; cursor:pointer;">Close</button>
+    </div>
+    <div id="inlineSheetContent" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <!-- Content will be inserted here -->
     </div>
   </div>
 </div>
@@ -779,22 +792,97 @@
     
     // Debug info
     console.log("Showing payment sheet for:", kind);
-    console.log("Sheet element:", SHEET);
     
-    // Force display style
-    SHEET.style.display = 'flex';
-    SHEET.classList.add('on');
-    
-    // Alert for debugging
-    setTimeout(() => {
-      if (window.getComputedStyle(SHEET).display === 'none') {
-        console.error("Sheet is still not visible after adding 'on' class");
-        // Force display again
-        SHEET.style.display = 'flex !important';
-      } else {
-        console.log("Sheet is now visible");
+    // Try both the original sheet and the inline sheet
+    try {
+      // First try the original sheet
+      SHEET.style.display = 'flex';
+      SHEET.classList.add('on');
+      
+      // Also show the inline sheet as a fallback
+      const inlineSheet = document.getElementById('inlinePaymentSheet');
+      const inlineTitle = document.getElementById('inlineSheetTitle');
+      const inlineContent = document.getElementById('inlineSheetContent');
+      
+      if (inlineSheet && inlineTitle && inlineContent) {
+        inlineTitle.textContent = `Pay via ${kind}`;
+        
+        // Create content for inline sheet
+        inlineContent.innerHTML = '';
+        
+        // Left side - info and buttons
+        const leftSide = document.createElement('div');
+        leftSide.innerHTML = `
+          ${infoHtml}
+          <div style="margin-top:16px">
+            <a href="${openHref}" target="_blank" rel="noopener" class="btn primary" style="margin-right:10px;">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              Open
+            </a>
+            <button onclick="navigator.clipboard.writeText('${copyText||openHref||''}');" class="btn">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <div class="note" style="margin-top:12px">Tip: If Open doesn't switch to your app, scan the QR on the right.</div>
+        `;
+        inlineContent.appendChild(leftSide);
+        
+        // Right side - QR code
+        const rightSide = document.createElement('div');
+        rightSide.style.display = 'flex';
+        rightSide.style.flexDirection = 'column';
+        rightSide.style.alignItems = 'center';
+        
+        if (qrPayload) {
+          const qrContainer = document.createElement('div');
+          qrContainer.id = 'inline-qr-' + Math.random().toString(36).substring(2, 15);
+          qrContainer.style.width = '220px';
+          qrContainer.style.height = '220px';
+          qrContainer.style.background = '#fff';
+          qrContainer.style.borderRadius = '12px';
+          qrContainer.style.display = 'flex';
+          qrContainer.style.alignItems = 'center';
+          qrContainer.style.justifyContent = 'center';
+          qrContainer.innerHTML = '<div>Generating QR...</div>';
+          
+          rightSide.appendChild(qrContainer);
+          
+          // Download button
+          const downloadBtn = document.createElement('button');
+          downloadBtn.className = 'btn small';
+          downloadBtn.style.marginTop = '10px';
+          downloadBtn.innerHTML = `
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download QR
+          `;
+          rightSide.appendChild(downloadBtn);
+          
+          // Generate QR code after DOM is updated
+          setTimeout(() => {
+            window.generateQR(qrContainer.id, qrPayload);
+          }, 100);
+        } else {
+          rightSide.innerHTML = '<div class="note">No QR for this rail; use the Open button.</div>';
+        }
+        
+        inlineContent.appendChild(rightSide);
+        inlineSheet.style.display = 'block';
       }
-    }, 100);
+    } catch (e) {
+      console.error("Error showing payment sheet:", e);
+    }
   }
 
   // ---------- Build rails ----------
