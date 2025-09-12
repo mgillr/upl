@@ -568,9 +568,37 @@
   SHEET.addEventListener('click', e=>{ if(e.target===SHEET) SHEET.classList.remove('on'); });
 
   // Make openRail globally accessible
+  // Define global variables for input elements
+  const amountEl = document.getElementById('amount');
+  const noteEl = document.getElementById('note');
+  const fiatEl = document.getElementById('fiat');
+  
   window.openRail = function(kind){
     console.log("Opening rail:", kind);
-    const p = S.profile, r = p.rails || {};
+    const p = S.profile || {
+      name: "Demo Barber",
+      currency: "CHF",
+      rails: {
+        iban: "CH4431999123000889012",
+        upi: "demobarber@upi",
+        pix_key: "demobarber@example.com",
+        lightning_address: "demo@lightningaddress.com",
+        bitcoin_address: "bc1qexampleaddress0000000000000000000000k3",
+        solana_address: "7gExaMpleSolAddre55base58goeshereABCDE12",
+        solana_usdc_mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        ethereum_address: "0xABCD1234ABCD1234ABCD1234ABCD1234ABCD1234",
+        usdt_evm: "0x9999999999999999999999999999999999999999",
+        paypal_me: "demobarber",
+        revolut_me: "demobarber",
+        cash_app: "demobarber",
+        venmo: "demobarber",
+        zelle: "demobarber@example.com",
+        interac_email: "demo.ca@example.com",
+        payid_au: "demo.au@example.com",
+        fps_id: "1234-5678-ABCD"
+      }
+    };
+    const r = p.rails || {};
     const amt = amountEl ? amountEl.value.trim() : ''; 
     const memo = noteEl ? noteEl.value.trim() : ''; 
     const ccy = ((fiatEl ? fiatEl.value.trim() : '') || p.currency || '').toUpperCase();
