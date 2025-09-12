@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Universal Pay Link</title>
 <meta name="description" content="One QR, any money. Bank & instant rails, Swiss QR-bill, UPI, Pix, Lightning, BTC, Solana, PayPal/Revolut, and more.">
 
@@ -34,26 +34,148 @@
   .row{display:flex; gap:12px; flex-wrap:wrap}
   .col{flex:1 1 360px}
 
-  .hero{display:grid; grid-template-columns: 220px 1fr; gap:18px; align-items:center}
-  @media (max-width:820px){ .hero{grid-template-columns:1fr} }
+  .hero{
+    display:grid; 
+    grid-template-columns: 220px 1fr; 
+    gap:18px; 
+    align-items:center
+  }
+  @media (max-width:820px){ 
+    .hero{
+      grid-template-columns:1fr;
+      text-align: center;
+    }
+    .hero .actions {
+      justify-content: center;
+    }
+  }
+  
+  /* Responsive adjustments for small screens */
+  @media (max-width:480px) {
+    .wrap {
+      padding: 12px;
+    }
+    .card {
+      padding: 14px;
+      margin: 10px 0;
+    }
+    .qr {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+    }
+    .input {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .txt {
+      min-width: 100%;
+    }
+    .chipbar {
+      justify-content: center;
+    }
+  }
 
   .qr{background:#fff; border-radius:12px; width:220px; height:220px; display:flex; align-items:center; justify-content:center}
 
   .input{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px}
   .txt{flex:1 1 160px; min-width:160px; padding:12px 14px; border:1px solid var(--border); border-radius:12px; background:#0f131a; color:var(--text)}
   .chipbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
-  .chip{padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:#141a22; cursor:pointer}
-  .chip:hover{border-color:#2e3846}
+  .chip{
+    padding:6px 12px; 
+    border:1px solid var(--border); 
+    border-radius:999px; 
+    background:#141a22; 
+    cursor:pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-weight: 500;
+  }
+  .chip:hover{
+    border-color:#2e3846;
+    background-color: #1a2230;
+  }
+  .chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
   .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
-  .btn{display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border:1px solid var(--border); border-radius:12px; background:#141a22; color:var(--text); text-decoration:none; cursor:pointer; transition:transform .08s ease, border-color .2s ease}
-  .btn:hover{transform:translateY(-1px); border-color:#2e3846}
-  .btn.primary{background:linear-gradient(180deg,#14232c,#111820); border-color:#294050}
-  .btn.small{padding:8px 10px; font-size:12px}
+  .btn{
+    display:inline-flex; 
+    align-items:center; 
+    justify-content:center; 
+    gap:10px; 
+    padding:12px 16px; 
+    border:1px solid var(--border); 
+    border-radius:12px; 
+    background:#141a22; 
+    color:var(--text); 
+    text-decoration:none; 
+    cursor:pointer; 
+    transition: background-color 0.2s, border-color 0.2s, transform .08s ease;
+    font-weight: 500;
+  }
+  .btn:hover{
+    transform:translateY(-1px); 
+    border-color:#2e3846;
+    background-color: #1a2230;
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn.primary{
+    background:linear-gradient(180deg,#14232c,#111820); 
+    border-color:#294050;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .btn.primary:hover {
+    background:linear-gradient(180deg,#1a2d3a,#162229);
+    border-color:#3a5269;
+  }
+  .btn.small{
+    padding:8px 10px; 
+    font-size:13px;
+  }
 
   .railgrid{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
   @media (max-width:820px){ .railgrid{grid-template-columns: repeat(2, 1fr)} }
-  .rail{display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-radius:12px; background:#141a22; padding:12px; cursor:pointer}
-  .rail:hover{border-color:#2e3846}
+  @media (max-width:480px){ .railgrid{grid-template-columns: 1fr} }
+  
+  .rail-section {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  
+  .rail-section h3 {
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: var(--accent2);
+    padding-left: 4px;
+  }
+  
+  .rail{
+    display:flex; 
+    align-items:center; 
+    gap:10px; 
+    border:1px solid var(--border); 
+    border-radius:12px; 
+    background:#141a22; 
+    padding:12px; 
+    cursor:pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  .rail:hover{
+    border-color:#2e3846;
+    background-color: #1a2230;
+  }
+  .rail:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
   .rail svg{width:20px; height:20px}
   .rail small{color:var(--muted)}
 
@@ -70,6 +192,19 @@
   .qrbox{display:flex; flex-direction:column; align-items:center; gap:8px}
   .qrbox .qr{background:#fff; border-radius:12px; width:220px; height:220px}
   .note{font-size:12px; color:var(--muted)}
+  
+  /* Screen reader only class */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
 </style>
 </head>
 <body>
@@ -90,22 +225,50 @@
       <div style="display:flex; flex-direction:column; align-items:center; gap:10px">
         <div id="universalQr" class="qr"></div>
         <div class="actions">
-          <button class="btn small" id="copylink">copy link</button>
-          <button class="btn small" id="share">share</button>
+          <button class="btn small" id="copylink" aria-label="Copy payment link to clipboard">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+            </svg>
+            Copy link
+          </button>
+          <button class="btn small" id="share" aria-label="Share payment link">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            Share
+          </button>
         </div>
       </div>
 
       <div>
         <div class="muted">Set amount / note (optional). The QR updates live.</div>
         <div class="input">
-          <input id="amount" class="txt" inputmode="decimal" placeholder="Amount (e.g., 35)">
-          <input id="note" class="txt" maxlength="80" placeholder="Note (e.g., haircut)">
-          <input id="fiat" class="txt" maxlength="4" placeholder="Currency (CHF, EUR, USD)">
+          <label for="amount" class="sr-only">Amount</label>
+          <input id="amount" class="txt" inputmode="decimal" placeholder="Amount (e.g., 35)" aria-label="Payment amount">
+          <label for="note" class="sr-only">Note</label>
+          <input id="note" class="txt" maxlength="80" placeholder="Note (e.g., haircut)" aria-label="Payment note or description">
+          <label for="fiat" class="sr-only">Currency</label>
+          <input id="fiat" class="txt" maxlength="4" placeholder="Currency (CHF, EUR, USD)" aria-label="Currency code">
         </div>
         <div class="chipbar" id="chips"></div>
         <div class="actions" style="margin-top:14px">
-          <a id="primaryCta" class="btn primary" href="#" target="_blank" rel="noopener">Pay</a>
-          <a class="btn" href="#rails">More options ↓</a>
+          <a id="primaryCta" class="btn primary" href="#" target="_blank" rel="noopener" aria-label="Pay with primary payment method">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M2 12h20"></path>
+            </svg>
+            Pay Now
+          </a>
+          <a class="btn" href="#rails" aria-label="View all payment options">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6"></path>
+            </svg>
+            More options
+          </a>
         </div>
       </div>
     </div>
@@ -113,7 +276,7 @@
 
   <!-- RAILS -->
   <div id="railsCard" class="card">
-    <div class="muted" style="margin-bottom:8px">Choose a rail</div>
+    <h2 style="font-size: 20px; margin-top: 0; margin-bottom: 16px;">Choose a Payment Method</h2>
     <div id="rails" class="railgrid"></div>
   </div>
 
@@ -123,11 +286,17 @@
 </div>
 
 <!-- Modal sheet -->
-<div id="sheet" class="sheet" role="dialog" aria-modal="true">
+<div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="panel">
     <div class="head">
       <div class="title" id="sheetTitle">Pay</div>
-      <button id="closeSheet" class="btn small">close</button>
+      <button id="closeSheet" class="btn small" aria-label="Close payment details">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Close
+      </button>
     </div>
     <div id="sheetBody" class="grid2">
       <!-- left: info + buttons; right: QR -->
@@ -297,8 +466,18 @@
 
   function railItem(kind, label, sub, icon){
     const div = document.createElement('div');
-    div.className='rail'; div.innerHTML = `${svg(icon)} <div><div>${label}</div><small>${sub||''}</small></div>`;
+    div.className='rail';
+    div.setAttribute('role', 'button');
+    div.setAttribute('tabindex', '0');
+    div.setAttribute('aria-label', `Pay with ${label}${sub ? ': ' + sub : ''}`);
+    div.innerHTML = `${svg(icon)} <div><div>${label}</div><small>${sub||''}</small></div>`;
     div.onclick = ()=> openRail(kind);
+    div.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openRail(kind);
+      }
+    };
     return div;
   }
 
@@ -345,7 +524,18 @@
     const right = document.createElement('div');
     right.className='qrbox';
     const c = document.createElement('div'); c.className='qr'; right.appendChild(c);
-    const dl = document.createElement('button'); dl.className='btn small'; dl.textContent='download QR (PNG)'; right.appendChild(dl);
+    const dl = document.createElement('button'); 
+    dl.className='btn small'; 
+    dl.setAttribute('aria-label', 'Download QR code as PNG image');
+    dl.innerHTML = `
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      Download QR
+    `;
+    right.appendChild(dl);
 
     let openHref = '#', copyText = '', note='';
     let qrPayload = null, infoHtml = '';
@@ -407,8 +597,21 @@
     left.innerHTML = `
       ${infoHtml}
       <div class="actions" style="margin-top:12px">
-        <a class="btn primary" href="${openHref}" target="_blank" rel="noopener">Open</a>
-        <button id="copyRail" class="btn">copy</button>
+        <a class="btn primary" href="${openHref}" target="_blank" rel="noopener" aria-label="Open payment in app or browser">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          Open
+        </a>
+        <button id="copyRail" class="btn" aria-label="Copy payment details to clipboard">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+          </svg>
+          Copy
+        </button>
       </div>
       <div class="note">Tip: If Open doesn't switch to your app, scan the QR on the right.</div>
     `;
@@ -457,41 +660,80 @@
     function push(kind,label,sub,icon,cond){
       if(!cond) return;
       S.rails.push({kind,label,sub});
-      grid.appendChild(railItem(kind,label,sub,icon));
+      return railItem(kind,label,sub,icon);
     }
 
     // Group 1: Bank rails
     const bankRails = document.createElement('div');
-    bankRails.innerHTML = '<h3>Bank rails</h3>';
+    bankRails.className = 'rail-section';
+    bankRails.innerHTML = '<h3>Bank Transfer Options</h3>';
     grid.appendChild(bankRails);
     
-    push('SEPA','IBAN / SEPA', r.iban||'', 'bank', !!r.iban);
-    push('SWISS','Swiss QR‑bill', (r.iban||'').startsWith('CH')|| (r.iban||'').startsWith('LI') ? 'CH/LI IBAN' : '', 'ch', !!(r.iban && ((r.iban||'').startsWith('CH')||(r.iban||'').startsWith('LI')) && (p.ch_city||p.ch_street)));
-    push('UPI','UPI', r.upi||'', 'upi', !!r.upi);
-    push('PIX','Pix', p.pix_name? (p.pix_name + (p.pix_city?' · '+p.pix_city:'')) : '', 'pix', !!r.pix_key);
+    const bankGrid = document.createElement('div');
+    bankGrid.className = 'railgrid';
+    bankRails.appendChild(bankGrid);
+    
+    const bankItems = [
+      push('SEPA','IBAN / SEPA', r.iban||'', 'bank', !!r.iban),
+      push('SWISS','Swiss QR‑bill', (r.iban||'').startsWith('CH')|| (r.iban||'').startsWith('LI') ? 'CH/LI IBAN' : '', 'ch', !!(r.iban && ((r.iban||'').startsWith('CH')||(r.iban||'').startsWith('LI')) && (p.ch_city||p.ch_street))),
+      push('UPI','UPI', r.upi||'', 'upi', !!r.upi),
+      push('PIX','Pix', p.pix_name? (p.pix_name + (p.pix_city?' · '+p.pix_city:'')) : '', 'pix', !!r.pix_key)
+    ].filter(Boolean);
+    
+    if (bankItems.length > 0) {
+      bankItems.forEach(item => bankGrid.appendChild(item));
+    } else {
+      bankRails.style.display = 'none';
+    }
     
     // Group 2: Crypto
     const cryptoRails = document.createElement('div');
-    cryptoRails.innerHTML = '<h3>Crypto</h3>';
+    cryptoRails.className = 'rail-section';
+    cryptoRails.innerHTML = '<h3>Cryptocurrency Options</h3>';
     grid.appendChild(cryptoRails);
     
-    push('Lightning','⚡ Lightning', r.lightning_address||r.lnurlp_url||'', 'zap', !!(r.lnurlp_url||r.lightning_address));
-    push('BTC','Bitcoin', r.bitcoin_address||'', 'btc', !!r.bitcoin_address);
-    push('Solana','Solana', r.solana_usdc_mint? 'Solana Pay (USDC)' : (r.solana_address? 'Solana (SOL)':''), 'sol', !!r.solana_address);
+    const cryptoGrid = document.createElement('div');
+    cryptoGrid.className = 'railgrid';
+    cryptoRails.appendChild(cryptoGrid);
+    
+    const cryptoItems = [
+      push('Lightning','⚡ Lightning', r.lightning_address||r.lnurlp_url||'', 'zap', !!(r.lnurlp_url||r.lightning_address)),
+      push('BTC','Bitcoin', r.bitcoin_address||'', 'btc', !!r.bitcoin_address),
+      push('Solana','Solana', r.solana_usdc_mint? 'Solana Pay (USDC)' : (r.solana_address? 'Solana (SOL)':''), 'sol', !!r.solana_address)
+    ].filter(Boolean);
+    
+    if (cryptoItems.length > 0) {
+      cryptoItems.forEach(item => cryptoGrid.appendChild(item));
+    } else {
+      cryptoRails.style.display = 'none';
+    }
     
     // Group 3: Wallet links
     const walletRails = document.createElement('div');
-    walletRails.innerHTML = '<h3>Wallet links</h3>';
+    walletRails.className = 'rail-section';
+    walletRails.innerHTML = '<h3>Payment Apps & Services</h3>';
     grid.appendChild(walletRails);
     
-    push('PayPal','PayPal.Me', r.paypal_me||'', 'pay', !!r.paypal_me);
-    push('Revolut','Revolut.me', r.revolut_me||'', 'pay', !!r.revolut_me);
-    push('CashApp','Cash App', r.cash_app? ('$'+r.cash_app):'', 'pay', !!r.cash_app);
-    push('Venmo','Venmo', r.venmo?('@'+r.venmo):'', 'pay', !!r.venmo);
-    push('Zelle','Zelle', r.zelle||'', 'pay', !!r.zelle);
-    push('Interac','Interac e‑Transfer', r.interac_email||'', 'pay', !!r.interac_email);
-    push('PayID','PayID (AU)', r.payid_au||'', 'pay', !!r.payid_au);
-    push('FPS','FPS (HK)', r.fps_id||'', 'pay', !!r.fps_id);
+    const walletGrid = document.createElement('div');
+    walletGrid.className = 'railgrid';
+    walletRails.appendChild(walletGrid);
+    
+    const walletItems = [
+      push('PayPal','PayPal.Me', r.paypal_me||'', 'pay', !!r.paypal_me),
+      push('Revolut','Revolut.me', r.revolut_me||'', 'pay', !!r.revolut_me),
+      push('CashApp','Cash App', r.cash_app? ('$'+r.cash_app):'', 'pay', !!r.cash_app),
+      push('Venmo','Venmo', r.venmo?('@'+r.venmo):'', 'pay', !!r.venmo),
+      push('Zelle','Zelle', r.zelle||'', 'pay', !!r.zelle),
+      push('Interac','Interac e‑Transfer', r.interac_email||'', 'pay', !!r.interac_email),
+      push('PayID','PayID (AU)', r.payid_au||'', 'pay', !!r.payid_au),
+      push('FPS','FPS (HK)', r.fps_id||'', 'pay', !!r.fps_id)
+    ].filter(Boolean);
+    
+    if (walletItems.length > 0) {
+      walletItems.forEach(item => walletGrid.appendChild(item));
+    } else {
+      walletRails.style.display = 'none';
+    }
 
     // Primary CTA
     const primary = pickPrimary();
@@ -514,8 +756,20 @@
 
     // amount chips (contextual)
     const chipVals = ['5','10','20','35','50','100'];
-    chipsEl.innerHTML = chipVals.map(v=>`<button class="chip" data-v="${v}">${v}</button>`).join('');
-    chipsEl.querySelectorAll('.chip').forEach(b => b.onclick = ()=>{ amountEl.value=b.dataset.v; onInputsChanged(); });
+    chipsEl.innerHTML = chipVals.map(v=>`<button class="chip" data-v="${v}" aria-label="Set amount to ${v}">${v}</button>`).join('');
+    chipsEl.querySelectorAll('.chip').forEach(b => {
+      b.onclick = ()=>{ 
+        amountEl.value=b.dataset.v; 
+        onInputsChanged(); 
+        // Provide visual feedback
+        b.style.backgroundColor = '#1a2d3a';
+        b.style.borderColor = '#3a5269';
+        setTimeout(() => {
+          b.style.backgroundColor = '';
+          b.style.borderColor = '';
+        }, 300);
+      };
+    });
 
     // events
     amountEl.oninput = onInputsChanged;
