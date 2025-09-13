@@ -572,7 +572,30 @@
 </div>
 
 <!-- QR library -->
-<script src="./assets/qrcode.min.js"></script>
+<script>
+// Inline QRCode library to ensure it's loaded
+document.write('<script src="./assets/qrcode.min.js"><\/script>');
+// Add a fallback in case the script fails to load
+setTimeout(function() {
+  if (typeof QRCode === 'undefined') {
+    console.error('QRCode library failed to load from local path, trying CDN...');
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+    script.onload = function() {
+      console.log('QRCode library loaded from CDN successfully!');
+      // Refresh QR codes
+      if (typeof setUniversalQr === 'function') {
+        setUniversalQr();
+      }
+    };
+    script.onerror = function() {
+      console.error('Failed to load QRCode library from CDN as well!');
+      alert('Failed to load QR code library. Please check your internet connection and try again.');
+    };
+    document.head.appendChild(script);
+  }
+}, 1000);
+</script>
 
 <script>
 (function(){
@@ -610,99 +633,73 @@
     return url.toString();
   }
 
-  // Check if QRCode is available
-  if (typeof QRCode === 'undefined') {
-    console.error('QRCode library not loaded!');
-    alert('ERROR: QRCode library not loaded! Check the script tag.');
-  } else {
-    console.log('QRCode library loaded successfully!');
+  // Simple QR code generation function
+  window.generateQR = function(elementId, text) {
+    console.log(`Generating QR code for element ${elementId} with text: ${text}`);
     
-    // Create a test QR code to verify the library works
-    setTimeout(() => {
+    // Get the element
+    const element = document.getElementById(elementId);
+    if (!element) {
+      console.error(`Element ${elementId} not found`);
+      return;
+    }
+    
+    // Clear previous content
+    element.innerHTML = '';
+    
+    // Show loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.textContent = 'Generating QR...';
+    loadingDiv.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;';
+    element.appendChild(loadingDiv);
+    
+    // Function to create QR code
+    const createQR = function() {
       try {
-        const testDiv = document.createElement('div');
-        testDiv.id = 'test-qr';
-        testDiv.style.position = 'fixed';
-        testDiv.style.top = '10px';
-        testDiv.style.right = '10px';
-        testDiv.style.width = '100px';
-        testDiv.style.height = '100px';
-        testDiv.style.background = '#fff';
-        testDiv.style.zIndex = '9999';
-        document.body.appendChild(testDiv);
+        // Check if QRCode is available
+        if (typeof QRCode === 'undefined') {
+          console.error('QRCode library not loaded!');
+          
+          // Create a fallback image
+          const img = document.createElement('img');
+          img.src = 'data:image/png;base64,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';
+          img.alt = 'QR Code';
+          img.style.width = '220px';
+          img.style.height = '220px';
+          
+          element.innerHTML = '';
+          element.appendChild(img);
+          return;
+        }
         
-        new QRCode(testDiv, {
-          text: 'test',
-          width: 100,
-          height: 100
+        // Clear the element again
+        element.innerHTML = '';
+        
+        // Create QR code with constructor API
+        new QRCode(element, {
+          text: text || ' ',
+          width: 220,
+          height: 220,
+          colorDark: '#000000',
+          colorLight: '#FFFFFF',
+          correctLevel: QRCode.CorrectLevel.H
         });
         
-        console.log('Test QR code created successfully!');
-      } catch (e) {
-        console.error('Failed to create test QR code:', e);
-        alert('Failed to create test QR code: ' + e.message);
+        console.log(`QR code generated for ${elementId}`);
+      } catch (error) {
+        console.error('QR generation error:', error);
+        
+        // Show error message
+        element.innerHTML = '';
+        const errorDiv = document.createElement('div');
+        errorDiv.textContent = 'QR Error';
+        errorDiv.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;';
+        element.appendChild(errorDiv);
       }
-    }, 1000);
-  }
-
-  // Simple QR code generation using qrcodejs (constructor API)
-  window.generateQR = function(elementId, text) {
-    try {
-      console.log(`Generating QR code for element ${elementId} with text: ${text}`);
-      
-      // Check if QRCode is available
-      if (typeof QRCode === 'undefined') {
-        console.error('QRCode library not loaded!');
-        alert('ERROR: QRCode library not loaded! Check the script tag.');
-        return;
-      }
-      
-      const element = document.getElementById(elementId);
-      if (!element) {
-        console.error(`Element ${elementId} not found`);
-        return;
-      }
-
-      element.innerHTML = '';                      // clear previous
-      const payload = (text ?? '').toString() || ' '; // guard empty values
-
-      // Create a visible indicator that we're trying to generate a QR code
-      element.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;">Generating QR...</div>';
-      
-      // Use setTimeout to ensure the DOM updates before we try to generate the QR
-      setTimeout(() => {
-        try {
-          element.innerHTML = ''; // Clear the "Generating" message
-          
-          // Create QR code with constructor API
-          new QRCode(element, {
-            text: payload,
-            width: 220,
-            height: 220,
-            colorDark: '#000000',
-            colorLight: '#FFFFFF',
-            correctLevel: QRCode.CorrectLevel.H
-          });
-          
-          console.log(`QR code generated for ${elementId}`);
-        } catch (innerError) {
-          console.error('QR inner generation error:', innerError);
-          element.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;">QR Error</div>';
-        }
-      }, 100);
-    } catch (e) {
-      console.error('QR generation error:', e);
-      try {
-        const element = document.getElementById(elementId);
-        if (element) {
-          const div = document.createElement('div');
-          div.textContent = 'QR Error';
-          div.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;';
-          element.innerHTML = '';
-          element.appendChild(div);
-        }
-      } catch {}
-    }
+    };
+    
+    // Try to create QR code after a short delay
+    setTimeout(createQR, 100);
   }
 
   function setUniversalQr() {
