@@ -583,24 +583,35 @@
       }
       
       // Clear previous content
-      element.innerHTML = '';
+      element.innerHTML = '<div>Generating QR...</div>';
       
-      // Generate QR code
-      QRCode.toCanvas(element, text, {
-        width: 200,
-        margin: 1,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      }, function(error) {
-        if (error) {
-          console.error('QR generation error:', error);
+      // Use setTimeout to ensure the DOM is updated
+      setTimeout(() => {
+        try {
+          // Clear again before generating
+          element.innerHTML = '';
+          
+          // Generate QR code
+          QRCode.toCanvas(element, text, {
+            width: 220,
+            margin: 0,
+            color: {
+              dark: '#000000',
+              light: '#FFFFFF'
+            }
+          }, function(error) {
+            if (error) {
+              console.error('QR generation error:', error);
+              element.innerHTML = '<div style="padding:10px;background:#fff;color:#000;text-align:center;">QR Error</div>';
+            } else {
+              console.log('QR code successfully generated for', elementId);
+            }
+          });
+        } catch (innerError) {
+          console.error('QR generation inner error:', innerError);
           element.innerHTML = '<div style="padding:10px;background:#fff;color:#000;text-align:center;">QR Error</div>';
-        } else {
-          console.log('QR code successfully generated for', elementId);
         }
-      });
+      }, 100);
     } catch (e) {
       console.error('QR generation error:', e);
       const element = document.getElementById(elementId);
@@ -611,7 +622,35 @@
   }
 
   function setUniversalQr() {
-    generateQR('universalQr', currentUrl());
+    console.log("Setting universal QR code with URL:", currentUrl());
+    try {
+      const qrElement = document.getElementById('universalQr');
+      if (!qrElement) {
+        console.error("Universal QR element not found");
+        return;
+      }
+      
+      // Clear previous content
+      qrElement.innerHTML = '<div>Generating QR...</div>';
+      
+      // Use setTimeout to ensure the DOM is updated
+      setTimeout(() => {
+        QRCode.toCanvas(qrElement, currentUrl(), { 
+          width: 220, 
+          margin: 0,
+          color: { dark: '#000', light: '#fff' }
+        }, function(error) {
+          if (error) {
+            console.error("Error generating universal QR code:", error);
+            qrElement.innerHTML = '<div style="padding:10px;background:#fff;color:#000;text-align:center;">QR Error</div>';
+          } else {
+            console.log("Universal QR code successfully generated");
+          }
+        });
+      }, 100);
+    } catch (e) {
+      console.error("Universal QR code generation error:", e);
+    }
   }
 
   // ---------- Rail builders ----------
