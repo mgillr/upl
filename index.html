@@ -610,15 +610,56 @@
     return url.toString();
   }
 
+  // Check if QRCode is available
+  if (typeof QRCode === 'undefined') {
+    console.error('QRCode library not loaded!');
+    alert('ERROR: QRCode library not loaded! Check the script tag.');
+  } else {
+    console.log('QRCode library loaded successfully!');
+    
+    // Create a test QR code to verify the library works
+    setTimeout(() => {
+      try {
+        const testDiv = document.createElement('div');
+        testDiv.id = 'test-qr';
+        testDiv.style.position = 'fixed';
+        testDiv.style.top = '10px';
+        testDiv.style.right = '10px';
+        testDiv.style.width = '100px';
+        testDiv.style.height = '100px';
+        testDiv.style.background = '#fff';
+        testDiv.style.zIndex = '9999';
+        document.body.appendChild(testDiv);
+        
+        new QRCode(testDiv, {
+          text: 'test',
+          width: 100,
+          height: 100
+        });
+        
+        console.log('Test QR code created successfully!');
+      } catch (e) {
+        console.error('Failed to create test QR code:', e);
+        alert('Failed to create test QR code: ' + e.message);
+      }
+    }, 1000);
+  }
+
   // Simple QR code generation using qrcodejs (constructor API)
   window.generateQR = function(elementId, text) {
     try {
       console.log(`Generating QR code for element ${elementId} with text: ${text}`);
-      alert(`Debug: Generating QR for ${elementId} with text: ${text}`);
+      
+      // Check if QRCode is available
+      if (typeof QRCode === 'undefined') {
+        console.error('QRCode library not loaded!');
+        alert('ERROR: QRCode library not loaded! Check the script tag.');
+        return;
+      }
       
       const element = document.getElementById(elementId);
       if (!element) {
-        alert(`Error: Element ${elementId} not found`);
+        console.error(`Element ${elementId} not found`);
         return;
       }
 
@@ -643,16 +684,14 @@
             correctLevel: QRCode.CorrectLevel.H
           });
           
-          alert(`QR code generated for ${elementId}`);
+          console.log(`QR code generated for ${elementId}`);
         } catch (innerError) {
           console.error('QR inner generation error:', innerError);
-          alert(`QR inner error: ${innerError.message}`);
           element.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;">QR Error</div>';
         }
       }, 100);
     } catch (e) {
       console.error('QR generation error:', e);
-      alert(`QR outer error: ${e.message}`);
       try {
         const element = document.getElementById(elementId);
         if (element) {
