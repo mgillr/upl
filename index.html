@@ -614,22 +614,45 @@
   window.generateQR = function(elementId, text) {
     try {
       console.log(`Generating QR code for element ${elementId} with text: ${text}`);
+      alert(`Debug: Generating QR for ${elementId} with text: ${text}`);
+      
       const element = document.getElementById(elementId);
-      if (!element) return;
+      if (!element) {
+        alert(`Error: Element ${elementId} not found`);
+        return;
+      }
 
       element.innerHTML = '';                      // clear previous
       const payload = (text ?? '').toString() || ' '; // guard empty values
 
-      new QRCode(element, {
-        text: payload,
-        width: 220,
-        height: 220,
-        colorDark: '#000000',
-        colorLight: '#FFFFFF',
-        correctLevel: QRCode.CorrectLevel.H
-      });
+      // Create a visible indicator that we're trying to generate a QR code
+      element.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;">Generating QR...</div>';
+      
+      // Use setTimeout to ensure the DOM updates before we try to generate the QR
+      setTimeout(() => {
+        try {
+          element.innerHTML = ''; // Clear the "Generating" message
+          
+          // Create QR code with constructor API
+          new QRCode(element, {
+            text: payload,
+            width: 220,
+            height: 220,
+            colorDark: '#000000',
+            colorLight: '#FFFFFF',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+          
+          alert(`QR code generated for ${elementId}`);
+        } catch (innerError) {
+          console.error('QR inner generation error:', innerError);
+          alert(`QR inner error: ${innerError.message}`);
+          element.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#fff;color:#000;">QR Error</div>';
+        }
+      }, 100);
     } catch (e) {
       console.error('QR generation error:', e);
+      alert(`QR outer error: ${e.message}`);
       try {
         const element = document.getElementById(elementId);
         if (element) {
