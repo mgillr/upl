@@ -1136,8 +1136,25 @@
     bankGrid.className = 'railgrid';
     bankRails.appendChild(bankGrid);
     
+    // Create SEPA rail with direct onclick handler to show the sepaPaymentSheet
+    const sepaRail = document.createElement('div');
+    sepaRail.className = 'rail';
+    sepaRail.setAttribute('role', 'button');
+    sepaRail.setAttribute('tabindex', '0');
+    sepaRail.setAttribute('aria-label', `Pay with IBAN / SEPA: ${r.iban || ''}`);
+    sepaRail.innerHTML = `${svg('bank')} <div><div>IBAN / SEPA</div><small>${r.iban || ''}</small></div>`;
+    sepaRail.onclick = () => {
+      document.getElementById('sepaPaymentSheet').style.display = 'block';
+    };
+    sepaRail.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        document.getElementById('sepaPaymentSheet').style.display = 'block';
+      }
+    };
+    
     const bankItems = [
-      push('SEPA','IBAN / SEPA', r.iban||'', 'bank', !!r.iban),
+      !!r.iban ? sepaRail : null,
       push('SWISS','Swiss QR‑bill', (r.iban||'').startsWith('CH')|| (r.iban||'').startsWith('LI') ? 'CH/LI IBAN' : '', 'ch', !!(r.iban && ((r.iban||'').startsWith('CH')||(r.iban||'').startsWith('LI')) && (p.ch_city||p.ch_street))),
       push('UPI','UPI', r.upi||'', 'upi', !!r.upi),
       push('PIX','Pix', p.pix_name? (p.pix_name + (p.pix_city?' · '+p.pix_city:'')) : '', 'pix', !!r.pix_key)
