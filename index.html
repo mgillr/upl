@@ -1143,13 +1143,64 @@
     sepaRail.setAttribute('tabindex', '0');
     sepaRail.setAttribute('aria-label', `Pay with IBAN / SEPA: ${r.iban || ''}`);
     sepaRail.innerHTML = `${svg('bank')} <div><div>IBAN / SEPA</div><small>${r.iban || ''}</small></div>`;
+    
+    // Create a completely static payment sheet for SEPA
+    const staticSepaPaymentSheet = document.createElement('div');
+    staticSepaPaymentSheet.id = 'staticSepaPaymentSheet';
+    staticSepaPaymentSheet.style.cssText = 'display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:100; padding:20px; overflow:auto;';
+    staticSepaPaymentSheet.innerHTML = `
+      <div style="max-width:800px; margin:40px auto; background:#1a2230; border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h2 style="margin:0; font-size:24px;">Pay via IBAN / SEPA</h2>
+          <button onclick="document.getElementById('staticSepaPaymentSheet').style.display='none';" style="background:none; border:1px solid #3a4555; border-radius:8px; padding:8px 12px; color:white; cursor:pointer;">Close</button>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+          <div>
+            <div class="muted">Many EU bank apps scan this and pre‑fill. If available, pick <b>Instant</b> in your bank app. Same QR works for Instant.</div>
+            <div style="margin-top:8px"><code>${r.iban || 'CH4431999123000889012'}</code></div>
+            <div style="margin-top:16px">
+              <a href="#" target="_blank" rel="noopener" class="btn primary" style="margin-right:10px;">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                Open
+              </a>
+              <button onclick="navigator.clipboard.writeText('${r.iban || 'CH4431999123000889012'}');" class="btn">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                </svg>
+                Copy
+              </button>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center;">
+            <div style="width:220px; height:220px; background:#fff; border-radius:12px; padding:10px; box-sizing:border-box;">
+              <img src="data:image/png;base64,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" alt="SEPA QR Code" style="width:100%; height:100%; display:block;">
+            </div>
+            <button onclick="alert('QR code download not implemented yet');" class="btn small" style="margin-top:10px;">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download QR
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(staticSepaPaymentSheet);
+    
     sepaRail.onclick = () => {
-      document.getElementById('sepaPaymentSheet').style.display = 'block';
+      document.getElementById('staticSepaPaymentSheet').style.display = 'block';
     };
     sepaRail.onkeydown = (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        document.getElementById('sepaPaymentSheet').style.display = 'block';
+        document.getElementById('staticSepaPaymentSheet').style.display = 'block';
       }
     };
     
