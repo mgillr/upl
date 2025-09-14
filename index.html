@@ -733,7 +733,7 @@ setTimeout(function() {
   }
 
   // Swiss QR-bill (SPC 0200)
-  function makeSwissQr({iban, creditorName, street, houseNo, postal, town, country='CH', amount, currency='CHF', message='', referenceType='NON', reference:''}){
+  function makeSwissQr({iban, creditorName, street, houseNo, postal, town, country='CH', amount, currency='CHF', message='', referenceType='NON', reference=''}){
     const IB=cleanIban(iban);
     if(!/^(CH|LI)[0-9A-Z]{19}$/.test(IB)) throw new Error('Swiss IBAN (CH/LI) required');
     const lines=[];
@@ -849,15 +849,13 @@ setTimeout(function() {
   }
 
   // ---------- Modal logic ----------
-  const SHEET = $('sheet'), SHEET_TITLE = $('sheetTitle'), SHEET_BODY = $('sheetBody');
+  // Sheet elements already defined above
   $('closeSheet').onclick = ()=> SHEET.classList.remove('on');
   SHEET.addEventListener('click', e=>{ if(e.target===SHEET) SHEET.classList.remove('on'); });
 
   // Make openRail globally accessible
   // Define global variables for input elements
-  const amountEl = document.getElementById('amount');
-  const noteEl = document.getElementById('note');
-  const fiatEl = document.getElementById('fiat');
+  // amountEl, noteEl, and fiatEl already defined above
   
   window.openRail = function(kind){
     console.log("Opening rail:", kind);
