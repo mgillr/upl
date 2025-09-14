@@ -31,9 +31,9 @@ Try the demo at: https://mgillr.github.io/upl/?u=demo
 - Fixed syntax error in Swiss QR-bill helper function (changed `reference:''` to `reference=''`)
 - Removed duplicate variable declarations to prevent JavaScript errors
 - Added `.nojekyll` file to disable Jekyll processing on GitHub Pages
-- Fixed payment method selection so all options work correctly
-- Fixed modal handling to prevent multiple modals from opening at once
-- Improved modal closing behavior
+- Removed duplicate "Bank Transfer Options" section
+- Changed payment method selection to update the main QR code instead of opening modals
+- Simplified the UI by removing all modal payment sheets
 
 ## GitHub Pages Setup
 To host this on your own GitHub Pages:
